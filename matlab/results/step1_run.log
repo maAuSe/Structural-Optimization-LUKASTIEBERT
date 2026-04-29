@@ -1,0 +1,139 @@
+
+Structural Optimization MTOP assignment
+Repository root: C:\Users\campa\Desktop\Structural-Optimization-LUKASTIEBERT
+Results folder:  C:\Users\campa\Desktop\Structural-Optimization-LUKASTIEBERT\matlab\results
+Figures folder:  C:\Users\campa\Desktop\Structural-Optimization-LUKASTIEBERT\matlab\figures
+
+Core parameters
+  Volume fraction: 0.500
+  Penalization:    3.000
+  Classical mesh:  600 x 200
+  MTOP FE mesh:    120 x 40
+  MTOP density:    5 x 5 per FE
+
+Planned experiments
+ 1. classical_oc_sensitivity       | classical | oc  | sensitivity | FE  600 x 200  | density  600 x 200 
+ 2. mtop_oc_sensitivity            | mtop      | oc  | sensitivity | FE  120 x 40   | density  600 x 200 
+ 3. classical_oc_density           | classical | oc  | density     | FE  600 x 200  | density  600 x 200 
+ 4. mtop_oc_density                | mtop      | oc  | density     | FE  120 x 40   | density  600 x 200 
+ 5. mtop_mma_sensitivity           | mtop      | mma | sensitivity | FE  120 x 40   | density  600 x 200 
+ 6. mtop_mma_density               | mtop      | mma | density     | FE  120 x 40   | density  600 x 200 
+ 7. mtop_mma_heaviside_eta_030     | mtop      | mma | heaviside   | FE  120 x 40   | density  600 x 200 
+ 8. mtop_mma_heaviside_eta_050     | mtop      | mma | heaviside   | FE  120 x 40   | density  600 x 200 
+ 9. mtop_mma_heaviside_eta_070     | mtop      | mma | heaviside   | FE  120 x 40   | density  600 x 200 
+
+Executing assignment step 1 only.
+
+Running assignment step 1: classical OC sensitivity baseline
+  Mesh:          600 x 200 elements
+  Volume target: 0.5000
+  Penalization:  3.0000
+  Filter radius: 24.0000 elements
+
+[17:59:05] iter:    1 | change:   0.20000 | c:   1071.08672 | v:   0.50000 | time:      2.85 s
+[17:59:07] iter:    2 | change:   0.20000 | c:    606.15872 | v:   0.49998 | time:      5.39 s
+[17:59:10] iter:    3 | change:   0.20000 | c:    427.72700 | v:   0.49993 | time:      8.20 s
+[17:59:12] iter:    4 | change:   0.20000 | c:    358.93214 | v:   0.50006 | time:     10.57 s
+[17:59:15] iter:    5 | change:   0.14348 | c:    339.88879 | v:   0.50003 | time:     12.93 s
+[17:59:17] iter:    6 | change:   0.17607 | c:    329.55779 | v:   0.50003 | time:     15.54 s
+[17:59:20] iter:    7 | change:   0.12367 | c:    321.86609 | v:   0.50022 | time:     17.87 s
+[17:59:22] iter:    8 | change:   0.15683 | c:    315.34568 | v:   0.50004 | time:     20.21 s
+[17:59:24] iter:    9 | change:   0.11977 | c:    309.03782 | v:   0.49993 | time:     22.50 s
+[17:59:27] iter:   10 | change:   0.13777 | c:    303.00535 | v:   0.49985 | time:     24.92 s
+[17:59:29] iter:   11 | change:   0.11364 | c:    297.16815 | v:   0.50010 | time:     27.23 s
+[17:59:31] iter:   12 | change:   0.12359 | c:    292.32958 | v:   0.50001 | time:     29.67 s
+[17:59:34] iter:   13 | change:   0.10605 | c:    286.73005 | v:   0.50022 | time:     32.00 s
+[17:59:36] iter:   14 | change:   0.12047 | c:    281.17229 | v:   0.49986 | time:     34.45 s
+[17:59:39] iter:   15 | change:   0.11233 | c:    273.85366 | v:   0.49995 | time:     36.93 s
+[17:59:41] iter:   16 | change:   0.12708 | c:    265.98600 | v:   0.49994 | time:     39.39 s
+[17:59:44] iter:   17 | change:   0.10597 | c:    257.61362 | v:   0.49992 | time:     41.93 s
+[17:59:46] iter:   18 | change:   0.12318 | c:    249.20289 | v:   0.50003 | time:     44.36 s
+[17:59:49] iter:   19 | change:   0.11090 | c:    241.54873 | v:   0.49987 | time:     46.91 s
+[17:59:51] iter:   20 | change:   0.08465 | c:    234.85386 | v:   0.50001 | time:     49.52 s
+[17:59:54] iter:   21 | change:   0.06450 | c:    230.74101 | v:   0.49991 | time:     52.05 s
+[17:59:56] iter:   22 | change:   0.04306 | c:    228.78305 | v:   0.50006 | time:     54.65 s
+[17:59:59] iter:   23 | change:   0.02782 | c:    228.07137 | v:   0.50008 | time:     57.28 s
+[18:00:02] iter:   24 | change:   0.02583 | c:    227.67148 | v:   0.50007 | time:     60.01 s
+[18:00:04] iter:   25 | change:   0.02573 | c:    227.45478 | v:   0.50001 | time:     62.64 s
+[18:00:07] iter:   26 | change:   0.02507 | c:    227.34193 | v:   0.49989 | time:     65.17 s
+[18:00:09] iter:   27 | change:   0.02519 | c:    227.18479 | v:   0.49989 | time:     67.73 s
+[18:00:12] iter:   28 | change:   0.02416 | c:    226.92461 | v:   0.50010 | time:     70.27 s
+[18:00:15] iter:   29 | change:   0.02400 | c:    226.85803 | v:   0.50008 | time:     72.92 s
+[18:00:17] iter:   30 | change:   0.02350 | c:    226.75369 | v:   0.50011 | time:     75.52 s
+[18:00:20] iter:   31 | change:   0.02314 | c:    226.70299 | v:   0.50008 | time:     78.11 s
+[18:00:22] iter:   32 | change:   0.02275 | c:    226.63850 | v:   0.50007 | time:     80.70 s
+[18:00:25] iter:   33 | change:   0.02232 | c:    226.59897 | v:   0.50003 | time:     83.35 s
+[18:00:28] iter:   34 | change:   0.02199 | c:    226.55221 | v:   0.49999 | time:     85.99 s
+[18:00:30] iter:   35 | change:   0.02159 | c:    226.51708 | v:   0.49994 | time:     88.50 s
+[18:00:33] iter:   36 | change:   0.02196 | c:    226.48088 | v:   0.49989 | time:     91.10 s
+[18:00:36] iter:   37 | change:   0.02087 | c:    226.29445 | v:   0.50007 | time:     93.83 s
+[18:00:38] iter:   38 | change:   0.02070 | c:    226.28186 | v:   0.50002 | time:     96.45 s
+[18:00:41] iter:   39 | change:   0.02029 | c:    226.21922 | v:   0.50003 | time:     99.06 s
+[18:00:43] iter:   40 | change:   0.02000 | c:    226.19609 | v:   0.49998 | time:    101.72 s
+[18:00:46] iter:   41 | change:   0.01966 | c:    226.15499 | v:   0.49995 | time:    104.21 s
+[18:00:48] iter:   42 | change:   0.02010 | c:    226.13008 | v:   0.49990 | time:    106.72 s
+[18:00:51] iter:   43 | change:   0.01903 | c:    225.94442 | v:   0.50009 | time:    109.35 s
+[18:00:54] iter:   44 | change:   0.01891 | c:    225.94065 | v:   0.50004 | time:    111.97 s
+[18:00:56] iter:   45 | change:   0.01855 | c:    225.88207 | v:   0.50005 | time:    114.61 s
+[18:00:59] iter:   46 | change:   0.01825 | c:    225.86859 | v:   0.50001 | time:    117.12 s
+[18:01:02] iter:   47 | change:   0.01799 | c:    225.83260 | v:   0.49998 | time:    119.76 s
+[18:01:04] iter:   48 | change:   0.01768 | c:    225.81661 | v:   0.49994 | time:    122.31 s
+[18:01:07] iter:   49 | change:   0.01822 | c:    225.78991 | v:   0.49990 | time:    124.86 s
+[18:01:09] iter:   50 | change:   0.01713 | c:    225.62213 | v:   0.50008 | time:    127.58 s
+[18:01:12] iter:   51 | change:   0.01709 | c:    225.61700 | v:   0.50005 | time:    130.21 s
+[18:01:15] iter:   52 | change:   0.01672 | c:    225.56671 | v:   0.50006 | time:    132.84 s
+[18:01:17] iter:   53 | change:   0.01656 | c:    225.55404 | v:   0.50003 | time:    135.36 s
+[18:01:20] iter:   54 | change:   0.01622 | c:    225.52272 | v:   0.50002 | time:    137.93 s
+[18:01:22] iter:   55 | change:   0.01611 | c:    225.50855 | v:   0.49998 | time:    140.45 s
+[18:01:25] iter:   56 | change:   0.01575 | c:    225.48430 | v:   0.49995 | time:    142.95 s
+[18:01:27] iter:   57 | change:   0.01644 | c:    225.46933 | v:   0.49991 | time:    145.47 s
+[18:01:30] iter:   58 | change:   0.01530 | c:    225.29810 | v:   0.50011 | time:    148.03 s
+[18:01:32] iter:   59 | change:   0.01540 | c:    225.30060 | v:   0.50008 | time:    150.64 s
+[18:01:35] iter:   60 | change:   0.01498 | c:    225.25227 | v:   0.50011 | time:    153.22 s
+[18:01:38] iter:   61 | change:   0.01488 | c:    225.24665 | v:   0.50008 | time:    155.89 s
+[18:01:40] iter:   62 | change:   0.01460 | c:    225.21947 | v:   0.50007 | time:    158.51 s
+[18:01:43] iter:   63 | change:   0.01443 | c:    225.21117 | v:   0.50004 | time:    161.04 s
+[18:01:45] iter:   64 | change:   0.01423 | c:    225.19267 | v:   0.50002 | time:    163.67 s
+[18:01:48] iter:   65 | change:   0.01401 | c:    225.18316 | v:   0.49999 | time:    166.18 s
+[18:01:51] iter:   66 | change:   0.01387 | c:    225.16890 | v:   0.49996 | time:    168.83 s
+[18:01:53] iter:   67 | change:   0.01364 | c:    225.15857 | v:   0.49993 | time:    171.47 s
+[18:01:56] iter:   68 | change:   0.01428 | c:    225.14613 | v:   0.49991 | time:    174.20 s
+[18:01:58] iter:   69 | change:   0.01331 | c:    224.98736 | v:   0.50010 | time:    176.75 s
+[18:02:01] iter:   70 | change:   0.01288 | c:    224.98998 | v:   0.50009 | time:    179.42 s
+[18:02:04] iter:   71 | change:   0.01386 | c:    225.09685 | v:   0.49990 | time:    181.97 s
+[18:02:06] iter:   72 | change:   0.01274 | c:    224.92883 | v:   0.50009 | time:    184.46 s
+[18:02:09] iter:   73 | change:   0.01280 | c:    224.95128 | v:   0.50005 | time:    187.08 s
+[18:02:11] iter:   74 | change:   0.01256 | c:    224.90662 | v:   0.50008 | time:    189.71 s
+[18:02:14] iter:   75 | change:   0.01241 | c:    224.90939 | v:   0.50005 | time:    192.33 s
+[18:02:17] iter:   76 | change:   0.01227 | c:    224.88473 | v:   0.50005 | time:    194.97 s
+[18:02:19] iter:   77 | change:   0.01211 | c:    224.88107 | v:   0.50002 | time:    197.62 s
+[18:02:22] iter:   78 | change:   0.01196 | c:    224.86491 | v:   0.50001 | time:    200.33 s
+[18:02:25] iter:   79 | change:   0.01183 | c:    224.85969 | v:   0.49999 | time:    202.98 s
+[18:02:28] iter:   80 | change:   0.01166 | c:    224.84874 | v:   0.49997 | time:    205.91 s
+[18:02:30] iter:   81 | change:   0.01153 | c:    224.84318 | v:   0.49995 | time:    208.40 s
+[18:02:33] iter:   82 | change:   0.01140 | c:    224.83477 | v:   0.49993 | time:    211.27 s
+[18:02:36] iter:   83 | change:   0.01125 | c:    224.82898 | v:   0.49991 | time:    213.81 s
+[18:02:38] iter:   84 | change:   0.01191 | c:    224.82203 | v:   0.49989 | time:    216.44 s
+[18:02:41] iter:   85 | change:   0.01100 | c:    224.67004 | v:   0.50010 | time:    219.01 s
+[18:02:43] iter:   86 | change:   0.01070 | c:    224.67677 | v:   0.50009 | time:    221.57 s
+[18:02:46] iter:   87 | change:   0.01079 | c:    224.78700 | v:   0.49991 | time:    224.10 s
+[18:02:48] iter:   88 | change:   0.01134 | c:    224.77338 | v:   0.49989 | time:    226.65 s
+[18:02:51] iter:   89 | change:   0.01047 | c:    224.63994 | v:   0.50006 | time:    229.31 s
+[18:02:54] iter:   90 | change:   0.01046 | c:    224.64486 | v:   0.50006 | time:    231.87 s
+[18:02:56] iter:   91 | change:   0.01030 | c:    224.61538 | v:   0.50009 | time:    234.35 s
+[18:02:59] iter:   92 | change:   0.01019 | c:    224.61388 | v:   0.50008 | time:    237.01 s
+[18:03:01] iter:   93 | change:   0.01006 | c:    224.59908 | v:   0.50009 | time:    239.45 s
+[18:03:04] iter:   94 | change:   0.00995 | c:    224.59610 | v:   0.50007 | time:    241.99 s
+
+Saved step 1 result data:
+  C:\Users\campa\Desktop\Structural-Optimization-LUKASTIEBERT\matlab\results\classical_oc_sensitivity.mat
+  C:\Users\campa\Desktop\Structural-Optimization-LUKASTIEBERT\matlab\results\classical_oc_sensitivity_history.csv
+  C:\Users\campa\Desktop\Structural-Optimization-LUKASTIEBERT\matlab\results\classical_oc_sensitivity_summary.txt
+Saved step 1 figures in:
+  C:\Users\campa\Desktop\Structural-Optimization-LUKASTIEBERT\matlab\figures
+
+Step 1 completed.
+  Iterations:       94
+  Elapsed time [s]: 241.99
+  Compliance:       224.596097
+  Volume fraction:  0.500074

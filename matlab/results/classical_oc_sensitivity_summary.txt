@@ -1,0 +1,13 @@
+Classical OC sensitivity baseline
+Mesh: 600 x 200 elements
+Volume fraction target: 0.500000
+Penalization power: 3.000000
+Sensitivity filter radius: 24.000000 elements
+Move limit: 0.200000
+Change tolerance: 0.010000
+Converged: 1
+Iterations: 94
+Elapsed time [s]: 241.986990
+Final compliance: 224.596096501723
+Final volume fraction: 0.500074422060
+Final maximum design change: 0.009945509622

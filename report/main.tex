@@ -1,0 +1,288 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{siunitx}
+\usepackage{hyperref}
+\usepackage{cleveref}
+
+\graphicspath{{figures/}{../matlab/figures/}}
+
+\title{Computational efficiency of multiresolution topology optimization for the MBB beam}
+\author{Lukas Tiebert \\ Structural Optimization}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This report investigates the computational efficiency of the multiresolution topology optimization (MTOP) approach for a two-dimensional minimum-compliance MBB beam. The MTOP formulation uses a coarse finite element analysis mesh and a finer density mesh. Its convergence behavior, computation time, and optimized layouts are compared with a classical density-based topology optimization formulation at the same final density resolution.
+\end{abstract}
+
+\section{Problem statement}
+
+The aim of this assignment is to assess whether the MTOP approach introduced by Nguyen et al.~\cite{nguyen2010mtop} can reduce computation time for two-dimensional minimum-compliance topology optimization without significantly changing the optimized structural layout.
+
+The benchmark problem is the half MBB beam from the lecture code. The classical formulation is solved on a fine finite element mesh, while the MTOP formulation performs finite element analysis on a coarser mesh and represents the material distribution on a finer density mesh.
+
+\section{Structural model}
+
+\subsection{Geometry and discretization}
+
+The structure is modeled as a two-dimensional half MBB beam. The classical baseline uses a finite element mesh of \(600 \times 200\) bilinear quadrilateral elements. The MTOP model uses a finite element mesh of \(120 \times 40\) elements and a density mesh of \(5 \times 5\) density cells per finite element, resulting in the same \(600 \times 200\) density resolution as the classical model.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Main discretization parameters.}
+  \label{tab:discretization}
+  \begin{tabular}{lccc}
+    \toprule
+    Model & FE mesh & Density cells per FE & Density mesh \\
+    \midrule
+    Classical & \(600 \times 200\) & \(1 \times 1\) & \(600 \times 200\) \\
+    MTOP & \(120 \times 40\) & \(5 \times 5\) & \(600 \times 200\) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Boundary conditions and loading}
+
+The boundary conditions and load are taken from the half MBB beam lecture implementation. The beam is loaded by a vertical point force at the upper-left node of the half model. Symmetry and support constraints are imposed as in the Chapter 9 lecture code.
+
+\subsection{Material interpolation}
+
+The density-based topology optimization uses SIMP interpolation:
+\begin{equation}
+  E(\rho_e) = E_{\min} + \rho_e^p (E_0 - E_{\min}),
+  \label{eq:simp}
+\end{equation}
+where \(\rho_e\) is the physical element density, \(p = 3\) is the penalization power, \(E_0 = 1\), and \(E_{\min}=10^{-9}\).
+
+\section{Optimization problem}
+
+The minimum-compliance topology optimization problem is formulated as
+\begin{align}
+  \min_{\mathbf{x}} \quad & C(\mathbf{x}) = \mathbf{F}^{T}\mathbf{U} \\
+  \text{subject to} \quad & \mathbf{K}(\mathbf{x})\mathbf{U} = \mathbf{F}, \\
+  & \frac{1}{N}\sum_{i=1}^{N} \rho_i \leq V^*, \\
+  & 0 \leq x_i \leq 1,
+\end{align}
+where \(\mathbf{x}\) contains the design variables, \(\rho_i\) are the physical densities, \(V^*=0.5\) is the prescribed volume fraction, and \(N\) is the number of density cells or finite elements depending on the formulation.
+
+\section{Filtering and projection}
+
+\subsection{Sensitivity filtering}
+
+The first study uses sensitivity filtering with a filter radius of \(24\) elements on the \(600 \times 200\) density scale. The filtered sensitivity is computed from neighboring density cells within the filter radius.
+
+\subsection{Density filtering}
+
+The density-filtered formulation first maps design variables to filtered densities and then evaluates the objective, constraint, and sensitivities with respect to the original design variables through the filter operation.
+
+\subsection{Heaviside projection}
+
+For the MMA experiments, Heaviside projection is applied after density filtering:
+\begin{equation}
+  \bar{\rho}_i =
+  \frac{\tanh(\beta\eta) + \tanh(\beta(\tilde{\rho}_i-\eta))}
+       {\tanh(\beta\eta) + \tanh(\beta(1-\eta))},
+  \label{eq:heaviside}
+\end{equation}
+where \(\tilde{\rho}_i\) is the filtered density, \(\eta\) is the projection threshold, and \(\beta\) controls projection sharpness.
+
+\section{Solution strategy}
+
+\subsection{Classical OC baseline}
+
+The first benchmark solves the classical MBB problem using the optimality criteria method with:
+\begin{itemize}
+  \item mesh size \(600 \times 200\),
+  \item volume fraction \(0.5\),
+  \item penalization power \(3\),
+  \item sensitivity filter radius \(24\).
+\end{itemize}
+
+The convergence history is recorded both by iteration number and by elapsed wall-clock computation time. The implementation follows the lecture script structure: the physical density is equal to the design density for sensitivity filtering, the compliance sensitivities are filtered, and the OC bisection enforces the volume constraint at each iteration.
+
+\subsection{MTOP with optimality criteria}
+
+The MTOP implementation keeps a fine density representation while solving equilibrium on a coarser analysis mesh. Each \(120 \times 40\) finite element contains \(5 \times 5\) density cells. The stiffness contribution of each analysis element is computed from the density cells assigned to that element.
+
+For an analysis element \(e\), let \(\mathcal{D}_e\) be the set of its \(25\) density cells. The SIMP scaling of the element stiffness is computed as the average of the penalized density values,
+\begin{equation}
+  \alpha_e = \frac{1}{25}\sum_{i \in \mathcal{D}_e} x_i^p,
+\end{equation}
+so that
+\begin{equation}
+  \mathbf{K}_e = \left(E_{\min} + (E_0-E_{\min})\alpha_e\right)\mathbf{K}_0.
+\end{equation}
+The compliance sensitivity for a density cell \(i\) inside analysis element \(e\) is therefore
+\begin{equation}
+  \frac{\partial C}{\partial x_i}
+  =
+  -\frac{p}{25}(E_0-E_{\min})x_i^{p-1}
+  \mathbf{u}_e^T\mathbf{K}_0\mathbf{u}_e.
+\end{equation}
+These sensitivities are then filtered on the full \(600 \times 200\) density grid using the same sensitivity filter radius as in the classical baseline.
+
+\subsection{MTOP with MMA}
+
+The final study replaces the optimality criteria update by MMA. The MMA experiments are performed for sensitivity filtering, density filtering, and Heaviside projection with several projection thresholds.
+
+\section{Sensitivity verification}
+
+The implementation will be verified by comparing analytical sensitivities with finite-difference approximations for representative design variables. Both compliance and volume sensitivities will be checked before the final comparison between the classical and MTOP formulations is made.
+
+\section{Numerical experiments}
+
+\subsection{Experiment matrix}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Planned numerical experiments.}
+  \label{tab:experiments}
+  \begin{tabular}{llll}
+    \toprule
+    Case & Approach & Optimizer & Filter or projection \\
+    \midrule
+    1 & Classical & OC & Sensitivity filter \\
+    2 & MTOP & OC & Sensitivity filter \\
+    3 & Classical & OC & Density filter \\
+    4 & MTOP & OC & Density filter \\
+    5 & MTOP & MMA & Sensitivity filter \\
+    6 & MTOP & MMA & Density filter \\
+    7 & MTOP & MMA & Heaviside projection, varying \(\eta\) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Convergence criteria and timing}
+
+For each experiment, the following quantities are stored per iteration:
+\begin{itemize}
+  \item compliance,
+  \item volume fraction,
+  \item maximum design change,
+  \item elapsed wall-clock time,
+  \item optimizer status or continuation parameters.
+\end{itemize}
+
+All timing comparisons should be made on the same machine and with the same MATLAB version.
+
+\section{Results}
+
+\subsection{Classical OC baseline}
+
+The classical OC baseline for assignment step 1 converged after \(94\) iterations. The final compliance was \(224.5961\), the final volume fraction was \(0.500074\), and the final maximum design change was \(9.95 \times 10^{-3}\). The measured wall-clock time on the machine used for this run was \(\SI{241.99}{\second}\).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{classical_oc_sensitivity_design.png}
+  \caption{Optimized classical OC design with sensitivity filtering for a \(600 \times 200\) mesh, volume fraction \(0.5\), penalization power \(3\), and filter radius \(24\) elements. Black denotes material and white denotes void.}
+  \label{fig:classical_oc_sensitivity_design}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{classical_oc_sensitivity_convergence_iter.pdf}
+  \caption{Classical OC convergence history as a function of iteration number. The compliance decreases rapidly during the first iterations and then approaches a plateau near the final design. The volume fraction remains close to the prescribed value throughout the OC updates.}
+  \label{fig:classical_oc_sensitivity_convergence_iter}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{classical_oc_sensitivity_convergence_time.pdf}
+  \caption{Classical OC convergence history as a function of elapsed computation time. The same compliance and volume histories are shown against wall-clock time to support the later runtime comparison with the MTOP approach.}
+  \label{fig:classical_oc_sensitivity_convergence_time}
+\end{figure}
+
+\subsection{MTOP OC with sensitivity filtering}
+The MTOP OC run converged after \(93\) iterations. The final MTOP compliance, evaluated on the coarse analysis mesh, was \(219.0052\). To compare the design on the same analysis model as the classical baseline, the final MTOP density field was also evaluated on the \(600 \times 200\) finite element mesh. This gave a fine-mesh compliance of \(224.6763\), only \(0.0357\%\) higher than the classical value of \(224.5961\). The final volume fraction was \(0.500017\), and the measured MTOP optimization time was \(\SI{8.82}{\second}\).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{mtop_oc_sensitivity_design.png}
+  \caption{Optimized MTOP OC design with a \(120 \times 40\) finite element mesh and \(5 \times 5\) density cells per finite element. Black denotes material and white denotes void.}
+  \label{fig:mtop_oc_sensitivity_design}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.82\textwidth]{mtop_oc_sensitivity_design_difference.png}
+  \caption{Comparison between the classical and MTOP OC designs. The signed difference plot shows \(\rho_{\mathrm{MTOP}}-\rho_{\mathrm{classical}}\) on a narrowed color scale, because the maximum absolute density difference is only \(0.03035\).}
+  \label{fig:mtop_oc_sensitivity_design_difference}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{mtop_oc_sensitivity_convergence_iter_compare.pdf}
+  \caption{Convergence comparison of the classical and MTOP OC runs as a function of iteration number. Both formulations need almost the same number of OC iterations to satisfy the design-change tolerance.}
+  \label{fig:mtop_oc_sensitivity_convergence_iter_compare}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{mtop_oc_sensitivity_convergence_time_compare.pdf}
+  \caption{Convergence comparison of the classical and MTOP OC runs as a function of elapsed computation time. The MTOP curve is compressed near the left side of the plot because the equilibrium problem is solved on the \(120 \times 40\) analysis mesh.}
+  \label{fig:mtop_oc_sensitivity_convergence_time_compare}
+\end{figure}
+
+\subsection{Density filtering comparison}
+Results for this assignment step will be added after the density-filtered classical and MTOP runs are completed.
+
+\subsection{MMA and Heaviside projection}
+Results for this assignment step will be added after the MMA and Heaviside projection studies are completed.
+
+\subsection{Runtime comparison}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Summary of runtime and final objective values.}
+  \label{tab:runtime_summary}
+  \small
+  \begin{tabular}{lrrrrr}
+    \toprule
+    Case & Iter. & Time [s] & Native \(C\) & Fine \(C\) & Volume \\
+    \midrule
+    Classical OC sensitivity & 94 & 241.99 & 224.596 & 224.596 & 0.500074 \\
+    MTOP OC sensitivity & 93 & 8.82 & 219.005 & 224.676 & 0.500017 \\
+    Classical OC density & -- & -- & -- & -- & -- \\
+    MTOP OC density & -- & -- & -- & -- & -- \\
+    MTOP MMA sensitivity & -- & -- & -- & -- & -- \\
+    MTOP MMA density & -- & -- & -- & -- & -- \\
+    MTOP MMA Heaviside & -- & -- & -- & -- & -- \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Discussion}
+
+The step 1 design shows the expected half MBB beam load paths: material is concentrated in the main chord regions and in diagonal members that transfer the applied load toward the support. The relatively large sensitivity filter radius produces smooth, wide members and suppresses checkerboard patterns. The volume history confirms that the OC update keeps the design close to the prescribed volume fraction, while the compliance history shows a rapid early decrease followed by a slow approach to the final layout.
+
+The MTOP result preserves the same main load paths as the classical solution. The mean absolute density difference is \(0.00217\), the RMS density difference is \(0.00429\), and the maximum absolute density difference is \(0.03035\). This indicates that, for sensitivity filtering with a radius of \(24\) density cells, the coarse \(120 \times 40\) analysis mesh does not visibly change the final density layout. The fine-mesh compliance evaluation confirms this visual comparison: the MTOP design is only \(0.0357\%\) higher in compliance than the classical design when both are evaluated on the \(600 \times 200\) finite element mesh.
+
+The iteration counts are almost identical, with \(94\) iterations for the classical baseline and \(93\) iterations for the MTOP run. The main difference is computational cost. The MTOP optimization took \(\SI{8.82}{\second}\), compared with \(\SI{241.99}{\second}\) for the classical baseline, giving a wall-clock speedup factor of \(27.43\) for this run. This speedup comes from solving the equilibrium equations on the coarse analysis mesh while keeping the same density resolution for the design description.
+
+The remaining discussion will compare these sensitivity-filtered OC results with the alternative filtering and optimizer choices. Important points to address include:
+\begin{itemize}
+  \item how sensitivity filtering and density filtering affect the comparison,
+  \item how MMA and Heaviside projection influence discreteness, convergence, and computational cost.
+\end{itemize}
+
+\section{Use of generative AI}
+
+Generative AI was used to help structure the repository, draft the report outline, and plan the MATLAB implementation workflow. All numerical formulations, code behavior, sensitivities, results, figures, and interpretations must be checked and validated by the authors. The final report should state exactly which parts were supported by GenAI and how correctness was verified.
+
+\section{Conclusion}
+
+Assignment step 1 established the classical OC reference solution for the \(600 \times 200\) MBB beam with sensitivity filtering. Assignment step 2 shows that the MTOP formulation with a \(120 \times 40\) finite element mesh and \(5 \times 5\) density cells per finite element reproduces nearly the same density layout while reducing the measured optimization time by a factor of \(27.43\). The final MTOP design remains essentially equivalent to the classical design when it is evaluated on the fine finite element mesh.
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}
