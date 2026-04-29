@@ -33,6 +33,8 @@ end
 
 fprintf('\nExecuting implemented assignment steps.\n');
 
+verifyReport = verify_sensitivities(cfg);
+
 classicalPath = fullfile(cfg.paths.results, 'classical_oc_sensitivity.mat');
 if isfile(classicalPath)
   data = load(classicalPath, 'result');
@@ -57,3 +59,7 @@ fprintf('  MTOP compliance:         %.6f\n', mtopResult.finalCompliance);
 fprintf('  Fine-mesh compliance:    %.6f\n', mtopResult.fineMeshCompliance);
 fprintf('  Volume fraction:         %.6f\n', mtopResult.finalVolumeFraction);
 fprintf('  Speedup vs classical:    %.2f\n', mtopResult.speedupAgainstClassical);
+
+fprintf('Sensitivity verification:\n');
+fprintf('  Classical max rel FD error in dC: %.3e\n', verifyReport.classical.dcMaxRelError);
+fprintf('  MTOP      max rel FD error in dC: %.3e\n', verifyReport.mtop.dcMaxRelError);

@@ -1,0 +1,166 @@
+
+Structural Optimization MTOP assignment
+Repository root: C:\Users\campa\Desktop\Structural-Optimization-LUKASTIEBERT
+Results folder:  C:\Users\campa\Desktop\Structural-Optimization-LUKASTIEBERT\matlab\results
+Figures folder:  C:\Users\campa\Desktop\Structural-Optimization-LUKASTIEBERT\matlab\figures
+
+Core parameters
+  Volume fraction: 0.500
+  Penalization:    3.000
+  Classical mesh:  600 x 200
+  MTOP FE mesh:    120 x 40
+  MTOP density:    5 x 5 per FE
+
+Planned experiments
+ 1. classical_oc_sensitivity       | classical | oc  | sensitivity | FE  600 x 200  | density  600 x 200 
+ 2. mtop_oc_sensitivity            | mtop      | oc  | sensitivity | FE  120 x 40   | density  600 x 200 
+ 3. classical_oc_density           | classical | oc  | density     | FE  600 x 200  | density  600 x 200 
+ 4. mtop_oc_density                | mtop      | oc  | density     | FE  120 x 40   | density  600 x 200 
+ 5. mtop_mma_sensitivity           | mtop      | mma | sensitivity | FE  120 x 40   | density  600 x 200 
+ 6. mtop_mma_density               | mtop      | mma | density     | FE  120 x 40   | density  600 x 200 
+ 7. mtop_mma_heaviside_eta_030     | mtop      | mma | heaviside   | FE  120 x 40   | density  600 x 200 
+ 8. mtop_mma_heaviside_eta_050     | mtop      | mma | heaviside   | FE  120 x 40   | density  600 x 200 
+ 9. mtop_mma_heaviside_eta_070     | mtop      | mma | heaviside   | FE  120 x 40   | density  600 x 200 
+
+Executing implemented assignment steps.
+
+Sensitivity verification
+  Classical OC formulation
+    Compliance:               891.391332
+    Max abs FD error in dC:   2.481e-04
+    Max rel FD error in dC:   5.656e-07
+    Max abs FD error in dV:   5.260e-11
+  MTOP formulation
+    Compliance:               937.749842
+    Max abs FD error in dC:   3.532e-04
+    Max rel FD error in dC:   1.520e-05
+    Max abs FD error in dV:   1.432e-11
+Saved sensitivity verification report:
+  C:\Users\campa\Desktop\Structural-Optimization-LUKASTIEBERT\matlab\results\sensitivity_verification.mat
+Step 1 result found and reused: C:\Users\campa\Desktop\Structural-Optimization-LUKASTIEBERT\matlab\results\classical_oc_sensitivity.mat
+Step 1 completed.
+  Iterations:       94
+  Elapsed time [s]: 241.99
+  Compliance:       224.596097
+  Volume fraction:  0.500074
+
+Running assignment step 2: MTOP OC sensitivity baseline
+  FE mesh:       120 x 40 elements
+  Density mesh:  600 x 200 cells
+  Cells per FE:  5 x 5
+  Volume target: 0.5000
+  Penalization:  3.0000
+  Filter radius: 24.0000 density cells
+
+[20:41:03] iter:    1 | change:   0.20000 | c:   1027.43234 | v:   0.50000 | time:      0.15 s
+[20:41:03] iter:    2 | change:   0.20000 | c:    590.65602 | v:   0.49991 | time:      0.33 s
+[20:41:03] iter:    3 | change:   0.20000 | c:    420.44777 | v:   0.49991 | time:      0.45 s
+[20:41:03] iter:    4 | change:   0.20000 | c:    354.03108 | v:   0.49989 | time:      0.58 s
+[20:41:03] iter:    5 | change:   0.14431 | c:    334.97165 | v:   0.49981 | time:      0.70 s
+[20:41:03] iter:    6 | change:   0.17369 | c:    324.27809 | v:   0.49999 | time:      0.84 s
+[20:41:03] iter:    7 | change:   0.12326 | c:    316.65001 | v:   0.50008 | time:      0.95 s
+[20:41:04] iter:    8 | change:   0.15418 | c:    310.22011 | v:   0.49978 | time:      1.07 s
+[20:41:04] iter:    9 | change:   0.11738 | c:    303.20235 | v:   0.50015 | time:      1.19 s
+[20:41:04] iter:   10 | change:   0.13191 | c:    297.13030 | v:   0.50016 | time:      1.30 s
+[20:41:04] iter:   11 | change:   0.10971 | c:    291.79416 | v:   0.50010 | time:      1.41 s
+[20:41:04] iter:   12 | change:   0.11833 | c:    287.22898 | v:   0.49981 | time:      1.53 s
+[20:41:04] iter:   13 | change:   0.10041 | c:    281.54905 | v:   0.50008 | time:      1.65 s
+[20:41:04] iter:   14 | change:   0.11405 | c:    275.54870 | v:   0.50012 | time:      1.77 s
+[20:41:04] iter:   15 | change:   0.10935 | c:    268.55368 | v:   0.50000 | time:      1.89 s
+[20:41:04] iter:   16 | change:   0.12240 | c:    260.95333 | v:   0.49976 | time:      2.01 s
+[20:41:05] iter:   17 | change:   0.10316 | c:    252.52962 | v:   0.49980 | time:      2.13 s
+[20:41:05] iter:   18 | change:   0.12032 | c:    244.19104 | v:   0.49983 | time:      2.25 s
+[20:41:05] iter:   19 | change:   0.11322 | c:    236.17967 | v:   0.50014 | time:      2.37 s
+[20:41:05] iter:   20 | change:   0.09066 | c:    229.81526 | v:   0.49991 | time:      2.49 s
+[20:41:05] iter:   21 | change:   0.06350 | c:    225.49766 | v:   0.49998 | time:      2.62 s
+[20:41:05] iter:   22 | change:   0.04278 | c:    223.61378 | v:   0.49989 | time:      2.76 s
+[20:41:05] iter:   23 | change:   0.02737 | c:    222.81834 | v:   0.49996 | time:      2.90 s
+[20:41:06] iter:   24 | change:   0.02562 | c:    222.47450 | v:   0.49989 | time:      3.02 s
+[20:41:06] iter:   25 | change:   0.02509 | c:    222.06332 | v:   0.50011 | time:      3.15 s
+[20:41:06] iter:   26 | change:   0.02509 | c:    221.99915 | v:   0.49998 | time:      3.26 s
+[20:41:06] iter:   27 | change:   0.02441 | c:    221.79215 | v:   0.50008 | time:      3.39 s
+[20:41:06] iter:   28 | change:   0.02426 | c:    221.70759 | v:   0.50006 | time:      3.50 s
+[20:41:06] iter:   29 | change:   0.02382 | c:    221.59869 | v:   0.50008 | time:      3.61 s
+[20:41:06] iter:   30 | change:   0.02349 | c:    221.53684 | v:   0.50005 | time:      3.73 s
+[20:41:06] iter:   31 | change:   0.02308 | c:    221.46834 | v:   0.50003 | time:      3.85 s
+[20:41:06] iter:   32 | change:   0.02273 | c:    221.42157 | v:   0.49999 | time:      3.96 s
+[20:41:07] iter:   33 | change:   0.02235 | c:    221.37202 | v:   0.49996 | time:      4.08 s
+[20:41:07] iter:   34 | change:   0.02272 | c:    221.33432 | v:   0.49991 | time:      4.23 s
+[20:41:07] iter:   35 | change:   0.02155 | c:    221.14097 | v:   0.50009 | time:      4.36 s
+[20:41:07] iter:   36 | change:   0.02147 | c:    221.12620 | v:   0.50004 | time:      4.49 s
+[20:41:07] iter:   37 | change:   0.02096 | c:    221.06136 | v:   0.50004 | time:      4.62 s
+[20:41:07] iter:   38 | change:   0.02071 | c:    221.03602 | v:   0.50000 | time:      4.74 s
+[20:41:07] iter:   39 | change:   0.02032 | c:    220.99259 | v:   0.49997 | time:      4.86 s
+[20:41:07] iter:   40 | change:   0.02078 | c:    220.96731 | v:   0.49992 | time:      4.99 s
+[20:41:08] iter:   41 | change:   0.01967 | c:    220.77889 | v:   0.50010 | time:      5.12 s
+[20:41:08] iter:   42 | change:   0.01961 | c:    220.77130 | v:   0.50005 | time:      5.26 s
+[20:41:08] iter:   43 | change:   0.01918 | c:    220.70896 | v:   0.50006 | time:      5.38 s
+[20:41:08] iter:   44 | change:   0.01891 | c:    220.69208 | v:   0.50002 | time:      5.53 s
+[20:41:08] iter:   45 | change:   0.01857 | c:    220.65339 | v:   0.49999 | time:      5.71 s
+[20:41:08] iter:   46 | change:   0.01829 | c:    220.63521 | v:   0.49994 | time:      5.84 s
+[20:41:09] iter:   47 | change:   0.01875 | c:    220.60668 | v:   0.49990 | time:      6.06 s
+[20:41:09] iter:   48 | change:   0.01767 | c:    220.43731 | v:   0.50008 | time:      6.19 s
+[20:41:09] iter:   49 | change:   0.01766 | c:    220.43034 | v:   0.50004 | time:      6.31 s
+[20:41:09] iter:   50 | change:   0.01726 | c:    220.38023 | v:   0.50005 | time:      6.44 s
+[20:41:09] iter:   51 | change:   0.01709 | c:    220.36563 | v:   0.50002 | time:      6.57 s
+[20:41:09] iter:   52 | change:   0.01679 | c:    220.33466 | v:   0.50000 | time:      6.72 s
+[20:41:09] iter:   53 | change:   0.01657 | c:    220.31846 | v:   0.49996 | time:      6.86 s
+[20:41:09] iter:   54 | change:   0.01632 | c:    220.29472 | v:   0.49993 | time:      7.02 s
+[20:41:10] iter:   55 | change:   0.01682 | c:    220.27782 | v:   0.49989 | time:      7.16 s
+[20:41:10] iter:   56 | change:   0.01582 | c:    220.10735 | v:   0.50008 | time:      7.30 s
+[20:41:10] iter:   57 | change:   0.01574 | c:    220.10478 | v:   0.50005 | time:      7.44 s
+[20:41:10] iter:   58 | change:   0.01551 | c:    220.05635 | v:   0.50007 | time:      7.59 s
+[20:41:10] iter:   59 | change:   0.01522 | c:    220.04606 | v:   0.50005 | time:      7.72 s
+[20:41:10] iter:   60 | change:   0.01512 | c:    220.01895 | v:   0.50004 | time:      7.86 s
+[20:41:11] iter:   61 | change:   0.01481 | c:    220.00735 | v:   0.50000 | time:      8.03 s
+[20:41:11] iter:   62 | change:   0.01471 | c:    219.98888 | v:   0.49998 | time:      8.17 s
+[20:41:11] iter:   63 | change:   0.01445 | c:    219.97714 | v:   0.49995 | time:      8.29 s
+[20:41:11] iter:   64 | change:   0.01428 | c:    219.96250 | v:   0.49992 | time:      8.42 s
+[20:41:11] iter:   65 | change:   0.01485 | c:    219.95123 | v:   0.49989 | time:      8.58 s
+[20:41:11] iter:   66 | change:   0.01383 | c:    219.79058 | v:   0.50008 | time:      8.75 s
+[20:41:11] iter:   67 | change:   0.01384 | c:    219.79305 | v:   0.50007 | time:      8.93 s
+[20:41:12] iter:   68 | change:   0.01353 | c:    219.75044 | v:   0.50010 | time:      9.08 s
+[20:41:12] iter:   69 | change:   0.01342 | c:    219.74469 | v:   0.50008 | time:      9.26 s
+[20:41:12] iter:   70 | change:   0.01320 | c:    219.72115 | v:   0.50008 | time:      9.41 s
+[20:41:12] iter:   71 | change:   0.01305 | c:    219.71275 | v:   0.50006 | time:      9.57 s
+[20:41:12] iter:   72 | change:   0.01290 | c:    219.69650 | v:   0.50004 | time:      9.71 s
+[20:41:12] iter:   73 | change:   0.01272 | c:    219.68680 | v:   0.50002 | time:      9.87 s
+[20:41:12] iter:   74 | change:   0.01260 | c:    219.67385 | v:   0.50000 | time:     10.00 s
+[20:41:13] iter:   75 | change:   0.01244 | c:    219.66384 | v:   0.49998 | time:     10.14 s
+[20:41:13] iter:   76 | change:   0.01228 | c:    219.65215 | v:   0.49996 | time:     10.27 s
+[20:41:13] iter:   77 | change:   0.01215 | c:    219.64232 | v:   0.49994 | time:     10.42 s
+[20:41:13] iter:   78 | change:   0.01199 | c:    219.63217 | v:   0.49992 | time:     10.63 s
+[20:41:13] iter:   79 | change:   0.01262 | c:    219.62340 | v:   0.49990 | time:     10.89 s
+[20:41:14] iter:   80 | change:   0.01169 | c:    219.46822 | v:   0.50010 | time:     11.13 s
+[20:41:14] iter:   81 | change:   0.01140 | c:    219.47280 | v:   0.50009 | time:     11.36 s
+[20:41:14] iter:   82 | change:   0.01227 | c:    219.58266 | v:   0.49991 | time:     11.50 s
+[20:41:14] iter:   83 | change:   0.01120 | c:    219.42170 | v:   0.50010 | time:     11.65 s
+[20:41:14] iter:   84 | change:   0.01123 | c:    219.44485 | v:   0.50007 | time:     11.82 s
+[20:41:14] iter:   85 | change:   0.01104 | c:    219.40721 | v:   0.50010 | time:     11.97 s
+[20:41:15] iter:   86 | change:   0.01093 | c:    219.41146 | v:   0.50008 | time:     12.14 s
+[20:41:15] iter:   87 | change:   0.01078 | c:    219.39292 | v:   0.50009 | time:     12.36 s
+[20:41:15] iter:   88 | change:   0.01067 | c:    219.39157 | v:   0.50007 | time:     12.58 s
+[20:41:15] iter:   89 | change:   0.01054 | c:    219.38018 | v:   0.50007 | time:     12.75 s
+[20:41:15] iter:   90 | change:   0.01043 | c:    219.37659 | v:   0.50005 | time:     12.88 s
+[20:41:16] iter:   91 | change:   0.01031 | c:    219.36824 | v:   0.50004 | time:     13.02 s
+[20:41:16] iter:   92 | change:   0.01020 | c:    219.36362 | v:   0.50003 | time:     13.17 s
+[20:41:16] iter:   93 | change:   0.01008 | c:    219.35679 | v:   0.50001 | time:     13.30 s
+[20:41:16] iter:   94 | change:   0.00996 | c:    219.35151 | v:   0.50000 | time:     13.43 s
+
+Saved step 2 result data:
+  C:\Users\campa\Desktop\Structural-Optimization-LUKASTIEBERT\matlab\results\mtop_oc_sensitivity.mat
+  C:\Users\campa\Desktop\Structural-Optimization-LUKASTIEBERT\matlab\results\mtop_oc_sensitivity_history.csv
+  C:\Users\campa\Desktop\Structural-Optimization-LUKASTIEBERT\matlab\results\mtop_oc_sensitivity_summary.txt
+Saved step 2 figures in:
+  C:\Users\campa\Desktop\Structural-Optimization-LUKASTIEBERT\matlab\figures
+
+Step 2 completed.
+  Iterations:              94
+  Elapsed time [s]:        13.43
+  MTOP compliance:         219.351513
+  Fine-mesh compliance:    224.731076
+  Volume fraction:         0.500001
+  Speedup vs classical:    18.01
+Sensitivity verification:
+  Classical max rel FD error in dC: 5.656e-07
+  MTOP      max rel FD error in dC: 1.520e-05

@@ -1,8 +1,13 @@
 function result = run_mtop_oc_sensitivity(cfg, classicalResult)
 %RUN_MTOP_OC_SENSITIVITY MTOP OC sensitivity-filter study for assignment step 2.
 %
-% The density mesh has 5 x 5 density cells per finite element. Each analysis
-% element stiffness is scaled by the mean SIMP stiffness of its density cells.
+% The density mesh has 5 x 5 density cells per finite element. The element
+% stiffness matrix is assembled following the multiresolution scheme of
+% Nguyen et al. (2010), Eq. (11): each density cell contributes a
+% precomputed template I_k (B^T D^0 B evaluated at the cell centre, scaled
+% by the cell area), weighted by its SIMP-penalised density. The compliance
+% sensitivity for a density cell is therefore the local strain-energy
+% density of that cell rather than the element-averaged value.
 
 if nargin < 1 || isempty(cfg)
   paths = setup_project();
@@ -92,7 +97,6 @@ densityPerX = problem.densityPerElement(1);
 densityPerY = problem.densityPerElement(2);
 densityNelx = problem.densityNelx;
 densityNely = problem.densityNely;
-densityCellsPerElement = densityPerX * densityPerY;
 volfrac = problem.volfrac;
 penal = problem.penal;
 rmin = problem.rmin;
@@ -103,7 +107,7 @@ E0 = problem.E0;
 Emin = problem.Emin;
 nu = problem.nu;
 
-KE = element_stiffness_matrix(nu);
+I_cells = mtop_subcell_stiffness(densityPerX, densityPerY, nu);
 nodenrs = reshape(1:(1 + feNelx) * (1 + feNely), 1 + feNely, 1 + feNelx);
 edofVec = reshape(2 * nodenrs(1:end-1, 1:end-1) + 1, feNelx * feNely, 1);
 edofMat = repmat(edofVec, 1, 8) + repmat([0 1 2 * feNely + [2 3 0 1] -2 -1], feNelx * feNely, 1);
@@ -138,19 +142,19 @@ while change > tol && iter < maxIter
   iter = iter + 1;
 
   xPhys = x;
-  rhoPenalFe = density_to_fe_mean(xPhys.^penal, densityPerX, densityPerY);
+  sK = mtop_assemble_stiffness(xPhys, I_cells, ...
+    densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin);
 
-  sK = reshape(KE(:) * (Emin + rhoPenalFe(:)' * (E0 - Emin)), 64 * feNelx * feNely, 1);
   K = sparse(iK, jK, sK);
   K = (K + K') / 2;
   U(freedofs) = K(freedofs, freedofs) \ F(freedofs);
 
-  ce = reshape(sum((U(edofMat) * KE) .* U(edofMat), 2), feNely, feNelx);
-  c = sum(sum((Emin + rhoPenalFe * (E0 - Emin)) .* ce));
+  ceCells = mtop_strain_energy(U(edofMat), I_cells, ...
+    densityPerX, densityPerY, feNelx, feNely);
+  c = sum(sum((Emin + (E0 - Emin) * xPhys.^penal) .* ceCells));
   v = mean(xPhys(:));
 
-  ceFine = repelem(ce, densityPerY, densityPerX);
-  dcdx = -(penal / densityCellsPerElement) * (E0 - Emin) * xPhys.^(penal - 1) .* ceFine;
+  dcdx = -penal * (E0 - Emin) * xPhys.^(penal - 1) .* ceCells;
   dvdx = ones(densityNely, densityNelx) / densityNelx / densityNely;
   dcdx = conv2(dcdx .* xPhys, h, 'same') ./ Hs ./ max(1e-3, xPhys);
 
@@ -211,15 +215,54 @@ end
 
 end
 
-function rhoFe = density_to_fe_mean(rhoFine, densityPerX, densityPerY)
+function sK = mtop_assemble_stiffness(xPhys, I_cells, ...
+    densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin)
+%MTOP_ASSEMBLE_STIFFNESS Element stiffness entries for the Q4/nN scheme.
+%
+% Returns a (64 * feNelx * feNely) x 1 vector compatible with the standard
+% (iK, jK) sparse-assembly pattern. For each analysis element e and each
+% sub-cell k inside it,
+%
+%   K_e = sum_k (E_min + (E_0 - E_min) * rho_k^p) * I_cells(:, :, k).
 
-densityNely = size(rhoFine, 1);
-densityNelx = size(rhoFine, 2);
-feNely = densityNely / densityPerY;
-feNelx = densityNelx / densityPerX;
+nFe = feNelx * feNely;
+rho4 = reshape(xPhys, densityPerY, feNely, densityPerX, feNelx);
+sK = zeros(64 * nFe, 1);
 
-rho4 = reshape(rhoFine, densityPerY, feNely, densityPerX, feNelx);
-rhoFe = squeeze(mean(mean(rho4, 1), 3));
+idx = 0;
+for sub_x = 1:densityPerX
+  for sub_y = 1:densityPerY
+    idx = idx + 1;
+    rhoSub = reshape(rho4(sub_y, :, sub_x, :), feNely, feNelx);
+    Ek = Emin + (E0 - Emin) * rhoSub.^penal;
+    Ik = I_cells(:, :, idx);
+    sK = sK + reshape(Ik(:) * Ek(:)', 64 * nFe, 1);
+  end
+end
+
+end
+
+
+function ceCells = mtop_strain_energy(ueK, I_cells, ...
+    densityPerX, densityPerY, feNelx, feNely)
+%MTOP_STRAIN_ENERGY Per-density-cell strain-energy density u_e^T I_k u_e.
+%
+% Returns a (densityPerY * feNely) x (densityPerX * feNelx) matrix giving,
+% for every density cell, the value u_e^T I_k u_e where e is the analysis
+% element containing the cell and k is the cell's local index inside e.
+
+ceCells = zeros(densityPerY * feNely, densityPerX * feNelx);
+
+idx = 0;
+for sub_x = 1:densityPerX
+  for sub_y = 1:densityPerY
+    idx = idx + 1;
+    Ik = I_cells(:, :, idx);
+    uIuVec = sum((ueK * Ik) .* ueK, 2);
+    uIuGrid = reshape(uIuVec, feNely, feNelx);
+    ceCells(sub_y:densityPerY:end, sub_x:densityPerX:end) = uIuGrid;
+  end
+end
 
 end
 
