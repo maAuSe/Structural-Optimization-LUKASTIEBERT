@@ -5,6 +5,7 @@
 \usepackage{amssymb}
 \usepackage{booktabs}
 \usepackage{graphicx}
+\usepackage{adjustbox}
 \usepackage{subcaption}
 \usepackage{siunitx}
 \usepackage{hyperref}
@@ -12,13 +13,68 @@
 
 \graphicspath{{figures/}{../matlab/figures/}}
 
-\title{Computational efficiency of multiresolution topology optimization for the MBB beam}
-\author{Lukas Tiebert \\ Structural Optimization}
-\date{\today}
+\newcommand{\reporttitle}{Multiresolution topology optimization}
+\newcommand{\reportsubtitle}{Computational-efficiency assessment for the half MBB beam with optimality criteria, the method of moving asymptotes, and Heaviside projection}
+\newcommand{\reportprogramme}{Mechanical Engineering -- Faculty of Engineering Science}
+\newcommand{\reportcourse}{Structural Optimization (H0T88A)}
+\newcommand{\reportacademicyear}{Academic Year 2025--2026}
+\newcommand{\reportinstructor}{Instructor: Prof.\ M.\ Schevenels}
 
 \begin{document}
 
-\maketitle
+\hypersetup{pageanchor=false}
+
+\begin{titlepage}
+    \thispagestyle{empty}
+    \frenchspacing
+
+    \noindent
+    \begin{tabular}{@{} c @{\hspace{0.1cm}} c @{\hspace{0.2cm}} c @{}}
+        \adjustbox{valign=c}{%
+            \IfFileExists{sedes.pdf}{\includegraphics[height=2cm]{sedes.pdf}}{\fbox{\rule{0pt}{2cm}\hspace{4cm}}}%
+        } &
+        \adjustbox{valign=c}{%
+            \rule{0.5pt}{2cm}%
+        } &
+        \adjustbox{valign=c}{%
+            \IfFileExists{logoFirW.jpg}{\includegraphics[height=2cm]{logoFirW.jpg}}{\fbox{\rule{0pt}{2cm}\hspace{4cm}}}%
+        }
+    \end{tabular}
+    \hfill
+
+    \vspace*{2cm}
+
+    \begin{center}
+        \begin{minipage}[t]{\textwidth}
+            \begin{center}
+                \large\textbf{\reportcourse}
+            \end{center}
+            \vspace{1cm}
+            \begin{center}
+                \textbf{Authors:}\\[2mm]
+                Lukas Campaert\ (r0885501)\\
+                Tiebert Lefebure\ (r0887630)\\[1mm]
+                \reportprogramme
+            \end{center}
+            \vspace{1cm}
+            \begin{center}
+                \Huge\textbf{\reporttitle}\\[4mm]
+                \LARGE\textbf{\reportsubtitle}
+            \end{center}
+            \vspace{1.0cm}
+            \begin{center}
+                \reportinstructor
+            \end{center}
+            \vspace{2cm}
+            \makebox[\textwidth]{\reportacademicyear}
+        \end{minipage}
+    \end{center}
+\end{titlepage}
+
+\clearpage
+\hypersetup{pageanchor=true}
+\pagenumbering{arabic}
+\setcounter{page}{1}
 
 \begin{abstract}
 This report assesses the computational efficiency of the multiresolution topology optimization (MTOP) approach of Nguyen et al.\ for the two-dimensional minimum-compliance MBB beam. The analysis is performed on a coarse finite element mesh while the design is represented on a finer density mesh. The convergence behavior, wall-clock time and optimized layout are compared with a classical density-based formulation at the same final density resolution. For the assignment specification of $600\times 200$ density cells, the MTOP scheme reproduces the classical layout to within \SI{0.06}{\percent} of fine-mesh compliance for sensitivity filtering and within \SI{0.02}{\percent} for density filtering, while reducing the optimization time by an order of magnitude in both cases. The optimality-criteria update is then replaced by MMA and combined with sensitivity filtering, density filtering and Heaviside projection at three threshold values $\eta$. Heaviside projection produces near-binary designs whose fine-mesh compliance is about $17$\,\% lower than the gray density-filtered design at the same volume fraction; the symmetric threshold $\eta=0.5$ gives the lowest compliance of all the configurations tested.
@@ -31,7 +87,7 @@ The objective of the assignment is to assess whether the MTOP approach proposed 
   \item a classical density-based formulation in which the analysis mesh and the density mesh coincide, and
   \item the MTOP formulation in which the analysis mesh is coarser than the density mesh.
 \end{enumerate}
-The remaining studies of the assignment (density filtering, MMA, Heaviside projection) are listed in Section~\ref{sec:experiment-matrix} and are reported in subsequent sections as the implementation progresses.
+The comparison is carried out for the four assignment steps: optimality criteria with sensitivity filtering (steps~1 and~2), optimality criteria with density filtering (step~3), and the method of moving asymptotes combined with sensitivity filtering, density filtering and Heaviside projection at three threshold values $\eta$ (step~4). The full experiment matrix is given in Section~\ref{sec:experiment-matrix}.
 
 \section{Structural model}
 
@@ -87,7 +143,7 @@ where $N$ is the number of density cells. For sensitivity filtering one has $\rh
 
 \subsection{Classical formulation}
 
-The classical baseline is the standard SIMP density-based formulation~\cite{andreassen2011top88}. The global stiffness matrix is assembled from the analytical bilinear Q4 element stiffness $\mathbf{K}_{0}$ as
+The classical baseline is the standard SIMP density-based formulation of Sigmund~\cite{sigmund2001top99} in the vectorized form of Andreassen et al.~\cite{andreassen2011top88}. The global stiffness matrix is assembled from the analytical bilinear Q4 element stiffness $\mathbf{K}_{0}$ as
 \begin{equation}
   \mathbf{K} = \sum_{e=1}^{N}\bigl[E_{\min}+\rho_{e}^{p}(E_{0}-E_{\min})\bigr]\mathbf{K}_{0}^{(e)}.
   \label{eq:classical-K}
@@ -148,7 +204,7 @@ with $m=0.2$ and $\lambda$ adjusted by bisection until the volume constraint is 
 
 \subsection{MMA and Heaviside projection}\label{sec:mma}
 
-In step~4 the OC update is replaced by the method of moving asymptotes (MMA) of Svanberg, which approximates the objective and constraint by separable convex functions of moving-asymptote-shifted variables and solves the resulting subproblem by an interior-point method. The implementation \texttt{mma.m} that ships with the lecture toolbox is used unmodified. The objective passed to MMA is $f_{0}=C/100$ and the volume constraint is $f_{1}=v/V^{*}-1\le 0$; the corresponding gradients are $\partial C/\partial x/100$ and $\partial v/\partial x/V^{*}$. The design variables remain in $[0,1]$ as before.
+In step~4 the OC update is replaced by the method of moving asymptotes (MMA) of Svanberg~\cite{svanberg1987mma}, which approximates the objective and constraint by separable convex functions of moving-asymptote-shifted variables and solves the resulting subproblem by an interior-point method. The implementation \texttt{mma.m} that ships with the lecture toolbox is used unmodified. The objective passed to MMA is $f_{0}=C/100$ and the volume constraint is $f_{1}=v/V^{*}-1\le 0$; the corresponding gradients are $\partial C/\partial x/100$ and $\partial v/\partial x/V^{*}$. The design variables remain in $[0,1]$ as before.
 
 For the Heaviside-projection variant, density filtering is followed by a smooth projection of Wang, Lazarov and Sigmund towards $\{0,1\}$,
 \begin{equation}
@@ -167,7 +223,9 @@ which multiplies $\partial C/\partial \rho_{i}$ before the linear filter chain r
 
 \section{Sensitivity verification}\label{sec:sensverif}
 
-Both formulations are verified before the production runs by comparing the analytical sensitivities with central finite differences. The verification is performed on a reduced MBB instance ($12\times 4$ analysis elements, $5\times 5$ density cells per element) with random densities perturbed about the volume fraction. The compliance and the volume are evaluated by the same routines used inside the optimization loop. Twenty design variables are sampled at random and their analytical and finite-difference compliance sensitivities are compared with a central step of $h=10^{-6}$. With this step the truncation and round-off errors of the central difference scheme are both controlled, so an analytical sensitivity that is exact to working precision should agree with the finite-difference reference well below the percent level. The verification routine \texttt{verify\_sensitivities.m} stores the sample values, the maximum absolute and relative errors and the test settings in \texttt{sensitivity\_verification.mat} and is executed automatically at the start of \texttt{run\_assignment.m}. For the present runs the maximum relative error in the compliance sensitivity is $5.7\times 10^{-7}$ for the classical formulation and $1.5\times 10^{-5}$ for the MTOP formulation; the volume sensitivity is recovered to machine precision in both cases. The slightly larger MTOP error reflects the accumulation of $N_{\mathrm{c}}=25$ midpoint contributions per element, but it is still many orders of magnitude smaller than any source of error that could affect the optimization trajectory.
+Three sensitivity tests are run before the production code, all on a reduced MBB instance ($12\times 4$ analysis elements, $5\times 5$ density cells per element) with random densities perturbed about the volume fraction. The compliance and the volume are evaluated by the same routines used inside the optimization loop. Twenty design variables are sampled at random and their analytical and finite-difference compliance sensitivities are compared with a central step of $h=10^{-6}$. With this step the truncation and round-off errors of the central difference scheme are both controlled, so an analytical sensitivity that is exact to working precision should agree with the finite-difference reference well below the percent level.
+
+The first test verifies the per-density-cell sensitivity $\partial C/\partial \rho_{e}$ of the classical SIMP/FE chain (Section~\ref{sec:filtering} bypassed). The second test verifies the per-density-cell sensitivity $\partial C/\partial \rho_{ek}$ of the multiresolution chain \eqref{eq:mtop-K}--\eqref{eq:mtop-sens}. The third test verifies the full filter--projection chain used in step~4: starting from the design variables $\boldsymbol{x}$, the density filter $\widetilde{\rho}=\mathcal{F}(\boldsymbol{x})$ and the Heaviside projection $\rho=\mathrm{H}(\widetilde{\rho};\beta,\eta)$ are applied (with representative $\beta=8$ and $\eta=0.5$), the multiresolution analysis is performed, and the analytical $\partial C/\partial x_{k}$ obtained by the chain rule of \cref{eq:heaviside-deriv} together with the linear filter is compared with the finite-difference reference computed directly on $\boldsymbol{x}$. The maximum relative errors over the twenty samples are $5.7\times 10^{-7}$ for the classical SIMP, $1.5\times 10^{-5}$ for the MTOP per-cell sensitivity, and $2.8\times 10^{-6}$ for the full filter--projection--MTOP chain; the volume sensitivity is recovered to machine precision in all three cases. The slightly larger error of the MTOP per-cell test reflects the accumulation of $N_{\mathrm{c}}=25$ midpoint contributions per element, but it is still many orders of magnitude smaller than any source of error that could affect the optimization trajectory. The verification routine \texttt{verify\_sensitivities.m} stores the sample values, the maximum absolute and relative errors and the test settings in \texttt{sensitivity\_verification.mat} and is executed automatically at the start of \texttt{run\_assignment.m}.
 
 \section{Numerical experiments}
 
@@ -175,19 +233,19 @@ Both formulations are verified before the production runs by comparing the analy
 
 \begin{table}[htbp]
   \centering
-  \caption{Planned numerical experiments. Steps marked with a $\star$ are reported in this version of the document.}
+  \caption{Numerical experiments performed in this report. Cases 1--4 correspond to assignment steps~1--3 (steps~1 and~2 use sensitivity filtering, step~3 uses density filtering for both the classical and the MTOP runs); cases 5--7 correspond to step~4 with three filter or projection choices, and case~7 is run for three values of the Heaviside threshold~$\eta$.}
   \label{tab:experiments}
-  \begin{tabular}{cllll}
+  \begin{tabular}{clll}
     \toprule
-    Case & Approach & Optimizer & Filter / projection & Status \\
+    Case & Approach & Optimizer & Filter / projection \\
     \midrule
-    1 & Classical & OC & Sensitivity filter & $\star$ \\
-    2 & MTOP & OC & Sensitivity filter & $\star$ \\
-    3 & Classical & OC & Density filter & $\star$ \\
-    4 & MTOP & OC & Density filter & $\star$ \\
-    5 & MTOP & MMA & Sensitivity filter & $\star$ \\
-    6 & MTOP & MMA & Density filter & $\star$ \\
-    7 & MTOP & MMA & Heaviside projection, $\eta\in\{0.3,0.5,0.7\}$ & $\star$ \\
+    1 & Classical & OC & Sensitivity filter \\
+    2 & MTOP & OC & Sensitivity filter \\
+    3 & Classical & OC & Density filter \\
+    4 & MTOP & OC & Density filter \\
+    5 & MTOP & MMA & Sensitivity filter \\
+    6 & MTOP & MMA & Density filter \\
+    7 & MTOP & MMA & Heaviside projection, $\eta\in\{0.3,0.5,0.7\}$ \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -356,7 +414,7 @@ Heaviside projection is applied on top of density filtering with three threshold
 
 \begin{table}[htbp]
   \centering
-  \caption{Wall-clock time and final objective values. ``Native compliance'' refers to the compliance computed inside each formulation (classical fine-mesh compliance for the classical case, multiresolution coarse-mesh compliance for the MTOP case). ``Fine compliance'' is the compliance of the optimized density field re-evaluated on the $600\times 200$ classical analysis model. The dagger ($\dagger$) marks runs that hit the iteration cap of $300$ without satisfying the design-change tolerance $\varepsilon=0.01$. Empty rows correspond to experiments that are not yet implemented.}
+  \caption{Wall-clock time and final objective values for the nine runs of \cref{tab:experiments}. ``Native compliance'' refers to the compliance computed inside each formulation (classical fine-mesh compliance for the classical case, multiresolution coarse-mesh compliance for the MTOP case). ``Fine compliance'' is the compliance of the optimized density field re-evaluated on the $600\times 200$ classical analysis model. The dagger ($\dagger$) marks runs that hit the iteration cap (300 for the OC and MMA cases, 500 for the Heaviside continuation) without satisfying the design-change tolerance $\varepsilon=0.01$.}
   \label{tab:runtime_summary}
   \small
   \begin{tabular}{lrrrrr}
@@ -396,7 +454,7 @@ The MTOP coarse-mesh compliance ($219.352$) is approximately \SI{2.4}{\percent} 
 
 \subsection{Density filtering with vanilla optimality criteria}
 
-For density filtering both the classical and the MTOP runs hit the iteration cap of $300$ without satisfying the design-change tolerance $\varepsilon=0.01$: the maximum absolute change oscillates between $0.04$ and $0.07$ throughout the second half of the run, while the compliance is already stable to within $0.1$ percent of its final value. The cause is the well-known incompatibility between the multiplicative OC update and density filtering on a fine mesh: the filter spreads each design-variable change over a neighbourhood of cells, but the OC update rescales every variable individually with no built-in damping, so high-frequency components of the design alternate sign from one iteration to the next. With sensitivity filtering the trick of dividing by $\max(\gamma,x_{i})$ in \cref{eq:sens-filter} damps this oscillation; with density filtering no such mechanism is available. The compliance plateau is therefore meaningful even though the change tolerance is not formally satisfied, and the move to MMA in step~4 is motivated precisely by this lack of robust convergence.
+For density filtering both the classical and the MTOP runs hit the iteration cap of $300$ without satisfying the design-change tolerance $\varepsilon=0.01$: the maximum absolute change oscillates between $0.04$ and $0.07$ throughout the second half of the run, while the compliance is already stable to within $0.1$ percent of its final value. The cause is the well-known incompatibility between the multiplicative OC update and density filtering on a fine mesh: the filter spreads each design-variable change over a neighbourhood of cells, but the OC update rescales every variable individually with no built-in damping, so high-frequency components of the design alternate sign from one iteration to the next. With sensitivity filtering the trick of dividing by $\max(\gamma,x_{i})$ in \cref{eq:sens-filter} damps this oscillation; with density filtering no such mechanism is available. The compliance plateau is therefore meaningful even though the change tolerance is not formally satisfied. As shown in Section~\ref{sec:mma-vs-oc}, switching the optimizer from OC to MMA in step~4 does not eliminate this oscillation either; only the addition of the Heaviside projection produces a regular near-binary design that converges within the iteration budget.
 
 \subsection{Density filtering versus sensitivity filtering as a comparison setting}
 
@@ -426,7 +484,7 @@ GenAI was used during this work in three roles. First, it was used to set up the
 
 Step~1 establishes the classical OC reference solution for the $600\times 200$ MBB beam with sensitivity filtering. Step~2 shows that the multiresolution scheme of Nguyen et al.\ with a $120\times 40$ analysis mesh and $5\times 5$ density cells per analysis element reproduces the classical layout to within \SI{0.06}{\percent} of fine-mesh compliance and reduces the optimization time from \SI{241.99}{\second} to \SI{13.43}{\second}, a speedup factor of $18.0$. Step~3 repeats the comparison with density filtering: the MTOP design now matches the classical density-filtered design to within \SI{0.02}{\percent} of fine-mesh compliance and the wall-clock speedup is $6.32$. The reduction of both the design gap and the speedup is consistent: density filtering pre-smooths the design variables, which makes the multiresolution integration error smaller but also adds chain-rule convolutions whose cost scales with the density resolution and is the same for both formulations. Vanilla OC fails to satisfy the design-change tolerance for either density-filtered run.
 
-Step~4 replaces OC with MMA inside the multiresolution scheme and investigates three filter choices. With sensitivity filtering MMA satisfies the change tolerance in $188$ iterations and reaches a fine-mesh compliance of $226.452$, very close to the OC value of $224.731$ but $0.77$\,\% higher because the sensitivity-filter heuristic is not an exact chain rule for MMA. With density filtering MMA still hits the iteration cap of $300$ with a residual change of about $0.05$; switching the optimizer alone does not eliminate the convergence pathology of step~3. The genuine advantage of MMA appears once Heaviside projection is added: the three runs at $\eta\in\{0.3,0.5,0.7\}$ converge cleanly under continuation on $\beta$ and produce essentially black-and-white designs at $\beta=\beta_{\max}=16$. The symmetric threshold $\eta=0.5$ achieves the lowest fine-mesh compliance of $199.472$, a reduction of $17$\,\% compared with the gray density-filtered design at the same volume fraction, and the asymmetric thresholds shift the layout towards thicker or slimmer members in the way predicted by the minimum-feature-size interpretation of the projection.
+Step~4 replaces OC with MMA inside the multiresolution scheme and investigates three filter choices. With sensitivity filtering MMA satisfies the change tolerance in $188$ iterations and reaches a fine-mesh compliance of $226.452$, very close to the OC value of $224.731$ but $0.77$\,\% higher because the sensitivity-filter heuristic is not an exact chain rule for MMA. With density filtering MMA still hits the iteration cap of $300$ with a residual change of about $0.05$; switching the optimizer alone does not eliminate the convergence pathology of step~3. The genuine advantage of MMA appears once Heaviside projection is added: the three runs at $\eta\in\{0.3,0.5,0.7\}$ converge cleanly under continuation on $\beta$ and produce essentially black-and-white designs at $\beta=\beta_{\max}=16$. The fine-mesh compliances of the three projections agree to within \SI{0.7}{\percent}, with the symmetric threshold $\eta=0.5$ giving the lowest value of $199.472$ -- a reduction of $17$\,\% compared with the gray density-filtered design at the same volume fraction. The visible differences between the three projected designs are minor at this filter radius and volume fraction, even though the asymmetric thresholds enforce a minimum solid or void feature size by construction.
 
 \bibliographystyle{plain}
 \bibliography{references}
