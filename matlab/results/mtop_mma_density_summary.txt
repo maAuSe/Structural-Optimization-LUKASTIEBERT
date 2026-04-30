@@ -8,8 +8,8 @@ Density filter radius: 24.000000 density cells
 Change tolerance: 0.010000
 Converged: 0
 Iterations: 300
-Elapsed time [s]: 177.636694
-Final MTOP compliance: 234.859600805857
-Final fine-mesh compliance: 240.252789539577
-Final volume fraction: 0.499999196843
-Final maximum design change: 0.054784125484
+Elapsed time [s]: 185.154450
+Final MTOP compliance: 234.625601909892
+Final fine-mesh compliance: 240.247623660119
+Final volume fraction: 0.499999194295
+Final maximum design change: 0.054949063890

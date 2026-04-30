@@ -112,8 +112,10 @@ high-frequency components of the update under density filtering. The
 MMA + density filter run of step 4 has the same issue at the same
 mesh resolution, with a residual change of about 0.05; switching the
 optimizer alone is not enough to fix it. The MMA + Heaviside runs of
-step 4, on the other hand, converge cleanly under continuation on
-beta and produce essentially black-and-white designs.
+step 4 produce essentially black-and-white designs under continuation
+on beta; eta = 0.3 meets the change tolerance, while eta = 0.5 and
+eta = 0.7 reach the 500-iteration cap with final design changes
+just above epsilon (0.0110 and 0.0116 respectively).
 
 Reproducing the figures:
 - Open MATLAB in matlab/ and run run_assignment.m. Step 1 and the

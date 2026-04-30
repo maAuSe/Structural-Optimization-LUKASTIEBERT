@@ -47,7 +47,7 @@ The lecture MBB scripts are script-style examples. For the assignment, the new c
 
 ## MATLAB Workspace
 
-The assignment workspace has been started in `matlab/`:
+The assignment workspace is in `matlab/`:
 
 | Path | Purpose |
 | --- | --- |
@@ -56,6 +56,13 @@ The assignment workspace has been started in `matlab/`:
 | `matlab/src/assignment_config.m` | Central configuration for mesh sizes, filters, optimizer settings, and planned experiments. |
 | `matlab/src/run_classical_oc_sensitivity.m` | Classical OC sensitivity-filter baseline for assignment step 1. |
 | `matlab/src/run_mtop_oc_sensitivity.m` | MTOP OC sensitivity-filter run and comparison against the step 1 baseline. |
+| `matlab/src/run_classical_oc_density.m` | Classical OC density-filter run for assignment step 3. |
+| `matlab/src/run_mtop_oc_density.m` | MTOP OC density-filter run and comparison against the classical density-filter result. |
+| `matlab/src/run_mtop_mma_sensitivity.m` | MTOP MMA run with sensitivity filtering for assignment step 4. |
+| `matlab/src/run_mtop_mma_density.m` | MTOP MMA run with density filtering for assignment step 4. |
+| `matlab/src/run_mtop_mma_heaviside.m` | MTOP MMA run with density filtering and Heaviside projection thresholds. |
+| `matlab/src/mtop_subcell_stiffness.m` | Q4/n25 subcell stiffness templates used by the MTOP assembly. |
+| `matlab/src/verify_sensitivities.m` | Finite-difference checks for the classical, MTOP, and Heaviside sensitivity chains. |
 | `matlab/figures/` | Target folder for report-ready figures. |
 | `matlab/results/` | Target folder for `.mat` result files, timing histories, and intermediate data. |
 | `matlab/readme.txt` | Short MATLAB-file overview intended to evolve into the submission ZIP readme. |
@@ -67,21 +74,18 @@ cd('C:\Users\campa\Desktop\Structural-Optimization-LUKASTIEBERT\matlab')
 run_assignment
 ```
 
-The current workflow runs assignment steps 1 and 2 and generates the classical OC baseline, MTOP OC result, design difference figure, and convergence comparison figures. The density filtering, MMA, Heaviside projection, and sensitivity verification experiments still need to be implemented in later steps.
+The current workflow runs all four assignment steps. It generates the classical and MTOP OC sensitivity-filter results, the classical and MTOP OC density-filter results, the MTOP MMA sensitivity- and density-filter results, the MTOP MMA Heaviside threshold runs, convergence histories, design figures, design-difference figures, summaries, and the finite-difference sensitivity verification.
 
-## Implementation Plan
+## Implemented Function Split
 
-Recommended function split for the assignment code:
+The assignment code is organized as follows:
 
-- `run_classical_oc.m`: classical OC baseline and density-filter variant.
-- `run_mtop_oc.m`: MTOP OC runner with coarse analysis mesh and fine density mesh.
-- `run_mtop_mma.m`: MTOP MMA runner for sensitivity filtering, density filtering, and Heaviside projection.
-- `mbb_fe_model.m`: finite element model construction for the half MBB beam.
-- `mtop_mapping.m`: density-to-analysis mapping for `5 x 5` design subcells per finite element.
-- `apply_filter.m`: sensitivity filter, density filter, and Heaviside projection.
-- `objective_compliance.m`: compliance, volume fraction, and sensitivities.
-- `save_result.m` and plotting helpers: save `.mat` histories and generate report figures.
-- `check_sensitivities.m`: finite-difference verification for representative design variables.
+- `run_classical_oc_sensitivity.m` and `run_classical_oc_density.m`: classical `600 x 200` OC baselines with sensitivity and density filtering.
+- `run_mtop_oc_sensitivity.m` and `run_mtop_oc_density.m`: MTOP OC runners with a `120 x 40` analysis mesh and a `600 x 200` density mesh.
+- `run_mtop_mma_sensitivity.m`, `run_mtop_mma_density.m`, and `run_mtop_mma_heaviside.m`: MMA variants for sensitivity filtering, density filtering, and Heaviside projection.
+- `mtop_subcell_stiffness.m`: precomputes the 25 subcell stiffness templates used by the Nguyen Q4/n25 MTOP integration.
+- Local helper functions inside each runner assemble the MBB finite element model, apply the filters, evaluate compliance and sensitivities, write result summaries, and export figures.
+- `verify_sensitivities.m`: finite-difference verification for representative classical, MTOP, and full filter/projection sensitivity chains.
 
 Key consistency checks:
 

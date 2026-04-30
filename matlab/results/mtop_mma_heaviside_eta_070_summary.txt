@@ -12,8 +12,8 @@ Change tolerance: 0.010000
 Converged: 0
 Iterations: 500
 Final beta: 16.000000
-Elapsed time [s]: 268.076943
-Final MTOP compliance: 196.142401970959
-Final fine-mesh compliance: 200.699079292240
-Final volume fraction: 0.499999601075
-Final maximum design change: 0.010184986706
+Elapsed time [s]: 282.820098
+Final MTOP compliance: 195.066745956488
+Final fine-mesh compliance: 200.638958940245
+Final volume fraction: 0.499999641220
+Final maximum design change: 0.011565288659

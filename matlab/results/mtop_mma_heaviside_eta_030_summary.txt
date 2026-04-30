@@ -10,10 +10,10 @@ Heaviside beta range: 1.0000 -> 16.0000
 Iterations per beta level: 50
 Change tolerance: 0.010000
 Converged: 1
-Iterations: 364
+Iterations: 419
 Final beta: 16.000000
-Elapsed time [s]: 217.683896
-Final MTOP compliance: 195.632741892941
-Final fine-mesh compliance: 200.129017370852
-Final volume fraction: 0.499999390359
-Final maximum design change: 0.008971458671
+Elapsed time [s]: 270.019633
+Final MTOP compliance: 194.446028221494
+Final fine-mesh compliance: 200.015889300148
+Final volume fraction: 0.499999589168
+Final maximum design change: 0.009886833176

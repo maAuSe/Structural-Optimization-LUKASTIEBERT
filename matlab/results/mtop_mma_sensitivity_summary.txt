@@ -7,9 +7,9 @@ Penalization power: 3.000000
 Sensitivity filter radius: 24.000000 density cells
 Change tolerance: 0.010000
 Converged: 1
-Iterations: 188
-Elapsed time [s]: 129.508642
-Final MTOP compliance: 221.085142184935
-Final fine-mesh compliance: 226.452317602808
-Final volume fraction: 0.499999115179
-Final maximum design change: 0.006917788591
+Iterations: 250
+Elapsed time [s]: 186.925037
+Final MTOP compliance: 220.874977749622
+Final fine-mesh compliance: 226.501684141454
+Final volume fraction: 0.499999640918
+Final maximum design change: 0.008270593999

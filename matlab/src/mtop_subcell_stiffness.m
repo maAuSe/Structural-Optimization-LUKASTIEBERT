@@ -20,6 +20,10 @@ function [I_cells, KE_quadrature] = mtop_subcell_stiffness(densityPerX, densityP
 % The element-local node ordering matches the convention in the Chapter 9
 % lecture code and in the 88-line code of Andreassen et al. (2011): node 1
 % is the bottom-left corner and the four nodes are listed counter-clockwise.
+% Density cells in xPhys follow the standard image array convention
+% (sub_y = 1 at the top of the image, sub_y = densityPerY at the bottom),
+% so the local y_local of cell (sub_y, sub_x) is mapped to the physical
+% top of the element (y_local close to 1) for the smallest sub_y.
 
 C0 = 1 / (1 - nu^2) * [1 nu 0; nu 1 0; 0 0 (1 - nu) / 2];
 
@@ -32,7 +36,7 @@ for sub_x = 1:densityPerX
   for sub_y = 1:densityPerY
     idx = idx + 1;
     x_local = (sub_x - 0.5) / densityPerX;
-    y_local = (sub_y - 0.5) / densityPerY;
+    y_local = 1 - (sub_y - 0.5) / densityPerY;
     xi = 2 * x_local - 1;
     eta = 2 * y_local - 1;
     B = strain_displacement(xi, eta);

@@ -130,7 +130,7 @@ history.beta = zeros(maxIter, 1);
 timer = tic;
 change = 1;
 iter = 0;
-iterBeta = 0;
+iterBeta = 1;
 mmaparams = [];
 
 while (change > tol || beta < betaMax) && iter < maxIter
