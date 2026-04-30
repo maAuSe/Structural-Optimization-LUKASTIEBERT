@@ -1,0 +1,13 @@
+Classical OC density baseline
+Mesh: 600 x 200 elements
+Volume fraction target: 0.500000
+Penalization power: 3.000000
+Density filter radius: 24.000000 elements
+Move limit: 0.200000
+Change tolerance: 0.010000
+Converged: 0
+Iterations: 300
+Elapsed time [s]: 867.918171
+Final compliance: 240.976292572484
+Final volume fraction: 0.499999629203
+Final maximum design change: 0.053772722668

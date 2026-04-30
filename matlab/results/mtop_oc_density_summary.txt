@@ -1,0 +1,21 @@
+MTOP OC density baseline
+FE mesh: 120 x 40 elements
+Density mesh: 600 x 200 cells
+Density cells per FE: 5 x 5
+Volume fraction target: 0.500000
+Penalization power: 3.000000
+Density filter radius: 24.000000 density cells
+Move limit: 0.200000
+Change tolerance: 0.010000
+Converged: 0
+Iterations: 300
+Elapsed time [s]: 140.372840
+Final MTOP compliance: 235.620671071657
+Final fine-mesh compliance of MTOP design: 241.028077628656
+Fine-mesh compliance ratio against classical (density): 1.000214896891
+Final volume fraction: 0.499998807993
+Final maximum design change: 0.073053257009
+Speedup against classical (density) wall-clock time: 6.182949446309
+Mean absolute density difference: 0.002115941082
+RMS density difference: 0.003699106111
+Maximum absolute density difference: 0.015886440364

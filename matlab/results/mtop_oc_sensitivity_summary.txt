@@ -9,13 +9,13 @@ Move limit: 0.200000
 Change tolerance: 0.010000
 Converged: 1
 Iterations: 94
-Elapsed time [s]: 13.432617
+Elapsed time [s]: 12.704676
 Final MTOP compliance: 219.351512511725
 Final fine-mesh compliance of MTOP design: 224.731076090205
 Fine-mesh compliance ratio against classical: 1.000600988132
 Final volume fraction: 0.500001323194
 Final maximum design change: 0.009962215518
-Speedup against classical wall-clock time: 18.014881032188
+Speedup against classical wall-clock time: 19.047081225379
 Mean absolute density difference: 0.002379787756
 RMS density difference: 0.005094822362
 Maximum absolute density difference: 0.062311325465

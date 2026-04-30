@@ -1,0 +1,19 @@
+MTOP MMA Heaviside (eta = 0.5000)
+FE mesh: 120 x 40 elements
+Density mesh: 600 x 200 cells
+Density cells per FE: 5 x 5
+Volume fraction target: 0.500000
+Penalization power: 3.000000
+Density filter radius: 24.000000 density cells
+Heaviside eta: 0.500000
+Heaviside beta range: 1.0000 -> 16.0000
+Iterations per beta level: 50
+Change tolerance: 0.010000
+Converged: 1
+Iterations: 406
+Final beta: 16.000000
+Elapsed time [s]: 234.765163
+Final MTOP compliance: 195.027940027543
+Final fine-mesh compliance: 199.472187170838
+Final volume fraction: 0.499999416460
+Final maximum design change: 0.009876542453

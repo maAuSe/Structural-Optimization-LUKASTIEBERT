@@ -1,0 +1,15 @@
+MTOP MMA density
+FE mesh: 120 x 40 elements
+Density mesh: 600 x 200 cells
+Density cells per FE: 5 x 5
+Volume fraction target: 0.500000
+Penalization power: 3.000000
+Density filter radius: 24.000000 density cells
+Change tolerance: 0.010000
+Converged: 0
+Iterations: 300
+Elapsed time [s]: 177.636694
+Final MTOP compliance: 234.859600805857
+Final fine-mesh compliance: 240.252789539577
+Final volume fraction: 0.499999196843
+Final maximum design change: 0.054784125484

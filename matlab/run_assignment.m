@@ -60,6 +60,64 @@ fprintf('  Fine-mesh compliance:    %.6f\n', mtopResult.fineMeshCompliance);
 fprintf('  Volume fraction:         %.6f\n', mtopResult.finalVolumeFraction);
 fprintf('  Speedup vs classical:    %.2f\n', mtopResult.speedupAgainstClassical);
 
+classicalDensityPath = fullfile(cfg.paths.results, 'classical_oc_density.mat');
+if isfile(classicalDensityPath)
+  data = load(classicalDensityPath, 'result');
+  classicalDensityResult = data.result;
+  fprintf('Step 3 (classical density) result found and reused: %s\n', classicalDensityPath);
+else
+  classicalDensityResult = run_classical_oc_density(cfg);
+end
+
+fprintf('Step 3 (classical density) completed.\n');
+fprintf('  Iterations:       %i\n', classicalDensityResult.iterations);
+fprintf('  Elapsed time [s]: %.2f\n', classicalDensityResult.elapsedSeconds);
+fprintf('  Compliance:       %.6f\n', classicalDensityResult.finalCompliance);
+fprintf('  Volume fraction:  %.6f\n', classicalDensityResult.finalVolumeFraction);
+
+mtopDensityResult = run_mtop_oc_density(cfg, classicalDensityResult);
+
+fprintf('Step 3 (MTOP density) completed.\n');
+fprintf('  Iterations:              %i\n', mtopDensityResult.iterations);
+fprintf('  Elapsed time [s]:        %.2f\n', mtopDensityResult.elapsedSeconds);
+fprintf('  MTOP compliance:         %.6f\n', mtopDensityResult.finalCompliance);
+fprintf('  Fine-mesh compliance:    %.6f\n', mtopDensityResult.fineMeshCompliance);
+fprintf('  Volume fraction:         %.6f\n', mtopDensityResult.finalVolumeFraction);
+fprintf('  Speedup vs classical:    %.2f\n', mtopDensityResult.speedupAgainstClassical);
+
+mmaSensitivityResult = run_mtop_mma_sensitivity(cfg);
+
+fprintf('Step 4 (MTOP MMA sensitivity) completed.\n');
+fprintf('  Iterations:           %i\n', mmaSensitivityResult.iterations);
+fprintf('  Elapsed time [s]:     %.2f\n', mmaSensitivityResult.elapsedSeconds);
+fprintf('  MTOP compliance:      %.6f\n', mmaSensitivityResult.finalCompliance);
+fprintf('  Fine-mesh compliance: %.6f\n', mmaSensitivityResult.fineMeshCompliance);
+fprintf('  Volume fraction:      %.6f\n', mmaSensitivityResult.finalVolumeFraction);
+
+mmaDensityResult = run_mtop_mma_density(cfg);
+
+fprintf('Step 4 (MTOP MMA density) completed.\n');
+fprintf('  Iterations:           %i\n', mmaDensityResult.iterations);
+fprintf('  Elapsed time [s]:     %.2f\n', mmaDensityResult.elapsedSeconds);
+fprintf('  MTOP compliance:      %.6f\n', mmaDensityResult.finalCompliance);
+fprintf('  Fine-mesh compliance: %.6f\n', mmaDensityResult.fineMeshCompliance);
+fprintf('  Volume fraction:      %.6f\n', mmaDensityResult.finalVolumeFraction);
+
+heavisideEtaValues = cfg.parameters.heavisideEtaValues;
+heavisideResults = cell(1, numel(heavisideEtaValues));
+for k = 1:numel(heavisideEtaValues)
+  eta = heavisideEtaValues(k);
+  heavisideResults{k} = run_mtop_mma_heaviside(cfg, eta);
+  fprintf('Step 4 (MTOP MMA Heaviside, eta = %.2f) completed.\n', eta);
+  fprintf('  Iterations:           %i\n', heavisideResults{k}.iterations);
+  fprintf('  Elapsed time [s]:     %.2f\n', heavisideResults{k}.elapsedSeconds);
+  fprintf('  Final beta:           %.4f\n', heavisideResults{k}.finalBeta);
+  fprintf('  MTOP compliance:      %.6f\n', heavisideResults{k}.finalCompliance);
+  fprintf('  Fine-mesh compliance: %.6f\n', heavisideResults{k}.fineMeshCompliance);
+  fprintf('  Volume fraction:      %.6f\n', heavisideResults{k}.finalVolumeFraction);
+end
+
 fprintf('Sensitivity verification:\n');
-fprintf('  Classical max rel FD error in dC: %.3e\n', verifyReport.classical.dcMaxRelError);
-fprintf('  MTOP      max rel FD error in dC: %.3e\n', verifyReport.mtop.dcMaxRelError);
+fprintf('  Classical (dC/drho)        max rel FD error: %.3e\n', verifyReport.classical.dcMaxRelError);
+fprintf('  MTOP      (dC/drho)        max rel FD error: %.3e\n', verifyReport.mtop.dcMaxRelError);
+fprintf('  Heaviside (dC/dx full chain) max rel FD error: %.3e\n', verifyReport.heaviside.dcMaxRelError);

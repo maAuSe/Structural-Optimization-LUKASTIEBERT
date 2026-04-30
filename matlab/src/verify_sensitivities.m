@@ -34,10 +34,12 @@ if ~isfield(options, 'seed'), options.seed = 0; end
 
 reportClassical = check_classical(options);
 reportMtop = check_mtop(options);
+reportHeaviside = check_heaviside_chain(options);
 
 report = struct();
 report.classical = reportClassical;
 report.mtop = reportMtop;
+report.heaviside = reportHeaviside;
 
 print_report(report);
 
@@ -142,6 +144,144 @@ dcAna = dcdrho(sampleIdx);
 dvAna = dvdrho(sampleIdx);
 
 out = error_metrics('mtop', c0, sampleIdx, dcAna, dcFD, dvAna, dvFD);
+
+end
+
+
+function out = check_heaviside_chain(options)
+%CHECK_HEAVISIDE_CHAIN Verify the full filter + Heaviside + MTOP chain rule.
+%
+% Builds a small density grid, applies the cone filter, then the Heaviside
+% projection with a representative beta and eta, then evaluates compliance
+% via the multiresolution scheme. The analytical sensitivity dC/dx is
+% compared with central finite differences applied directly to the design
+% variables x. A passing test verifies the entire chain that drives the
+% MTOP MMA Heaviside runner of step 4.
+
+rng(options.seed);
+
+feNelx = options.feNelx;
+feNely = options.feNely;
+densityPerX = options.densityPerX;
+densityPerY = options.densityPerY;
+penal = options.penal;
+E0 = options.E0;
+Emin = options.Emin;
+nu = options.nu;
+
+beta = 8;
+eta = 0.5;
+rmin = 6;
+
+I_cells = mtop_subcell_stiffness(densityPerX, densityPerY, nu);
+[edofMat, iK, jK, F, freedofs] = mbb_topology(feNelx, feNely);
+
+densityNelx = feNelx * densityPerX;
+densityNely = feNely * densityPerY;
+[dy, dx] = meshgrid(-ceil(rmin) + 1:ceil(rmin) - 1, -ceil(rmin) + 1:ceil(rmin) - 1);
+h = max(0, rmin - sqrt(dx.^2 + dy.^2));
+Hs = conv2(ones(densityNely, densityNelx), h, 'same');
+
+x0 = options.volfrac + 0.10 * (rand(densityNely, densityNelx) - 0.5);
+x0 = min(max(x0, 0.05), 0.95);
+
+[c0, dcdx] = heaviside_objective(x0, h, Hs, I_cells, edofMat, iK, jK, F, freedofs, ...
+  densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin, beta, eta);
+
+numSamples = min(options.numSamples, numel(x0));
+sampleIdx = randperm(numel(x0), numSamples);
+
+dcFD = zeros(numSamples, 1);
+for k = 1:numSamples
+  i = sampleIdx(k);
+  xPlus = x0; xPlus(i) = xPlus(i) + options.fdStep;
+  xMinus = x0; xMinus(i) = xMinus(i) - options.fdStep;
+  cPlus  = heaviside_objective(xPlus,  h, Hs, I_cells, edofMat, iK, jK, F, freedofs, ...
+    densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin, beta, eta);
+  cMinus = heaviside_objective(xMinus, h, Hs, I_cells, edofMat, iK, jK, F, freedofs, ...
+    densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin, beta, eta);
+  dcFD(k) = (cPlus - cMinus) / (2 * options.fdStep);
+end
+
+dcAna = dcdx(sampleIdx);
+
+out = struct();
+out.label = 'heaviside';
+out.compliance = c0;
+out.beta = beta;
+out.eta = eta;
+out.filterRadius = rmin;
+out.sampleIdx = sampleIdx(:);
+out.dcAnalytical = dcAna(:);
+out.dcFiniteDiff = dcFD;
+out.dcMaxAbsError = max(abs(dcAna(:) - dcFD));
+out.dcMaxRelError = max(abs(dcAna(:) - dcFD)) / max(max(abs(dcFD)), eps);
+
+end
+
+
+function [c, dcdx] = heaviside_objective(x, h, Hs, I_cells, edofMat, iK, jK, F, freedofs, ...
+    densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin, beta, eta)
+
+xTilde = conv2(x, h, 'same') ./ Hs;
+xPhys = (tanh(beta * eta) + tanh(beta * (xTilde - eta))) ./ ...
+  (tanh(beta * eta) + tanh(beta * (1 - eta)));
+
+sK = mtop_assemble_local(xPhys, I_cells, densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin);
+K = sparse(iK, jK, sK);
+K = (K + K') / 2;
+U = zeros(2 * (feNely + 1) * (feNelx + 1), 1);
+U(freedofs) = K(freedofs, freedofs) \ F(freedofs);
+
+ceCells = mtop_strain_energy_local(U(edofMat), I_cells, densityPerX, densityPerY, feNelx, feNely);
+c = sum(sum((Emin + (E0 - Emin) * xPhys.^penal) .* ceCells));
+
+if nargout > 1
+  densityNelx = feNelx * densityPerX;
+  densityNely = feNely * densityPerY;
+  dcdrho = -penal * (E0 - Emin) * xPhys.^(penal - 1) .* ceCells;
+  dxPhysdxTilde = beta * sech(beta * (xTilde - eta)).^2 ./ ...
+    (tanh(beta * eta) + tanh(beta * (1 - eta)));
+  dcdxTilde = dcdrho .* dxPhysdxTilde;
+  dcdx = conv2(dcdxTilde ./ Hs, h, 'same');
+  dcdx = reshape(dcdx, densityNely, densityNelx);
+end
+
+end
+
+
+function sK = mtop_assemble_local(xPhys, I_cells, densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin)
+
+nFe = feNelx * feNely;
+rho4 = reshape(xPhys, densityPerY, feNely, densityPerX, feNelx);
+sK = zeros(64 * nFe, 1);
+idx = 0;
+for sub_x = 1:densityPerX
+  for sub_y = 1:densityPerY
+    idx = idx + 1;
+    rhoSub = reshape(rho4(sub_y, :, sub_x, :), feNely, feNelx);
+    Ek = Emin + (E0 - Emin) * rhoSub.^penal;
+    Ik = I_cells(:, :, idx);
+    sK = sK + reshape(Ik(:) * Ek(:)', 64 * nFe, 1);
+  end
+end
+
+end
+
+
+function ceCells = mtop_strain_energy_local(ueK, I_cells, densityPerX, densityPerY, feNelx, feNely)
+
+ceCells = zeros(densityPerY * feNely, densityPerX * feNelx);
+idx = 0;
+for sub_x = 1:densityPerX
+  for sub_y = 1:densityPerY
+    idx = idx + 1;
+    Ik = I_cells(:, :, idx);
+    uIuVec = sum((ueK * Ik) .* ueK, 2);
+    uIuGrid = reshape(uIuVec, feNely, feNelx);
+    ceCells(sub_y:densityPerY:end, sub_x:densityPerX:end) = uIuGrid;
+  end
+end
 
 end
 
@@ -278,14 +418,19 @@ function print_report(report)
 
 fprintf('\nSensitivity verification\n');
 fprintf('  Classical OC formulation\n');
-fprintf('    Compliance:               %.6f\n', report.classical.compliance);
-fprintf('    Max abs FD error in dC:   %.3e\n', report.classical.dcMaxAbsError);
-fprintf('    Max rel FD error in dC:   %.3e\n', report.classical.dcMaxRelError);
-fprintf('    Max abs FD error in dV:   %.3e\n', report.classical.dvMaxAbsError);
-fprintf('  MTOP formulation\n');
-fprintf('    Compliance:               %.6f\n', report.mtop.compliance);
-fprintf('    Max abs FD error in dC:   %.3e\n', report.mtop.dcMaxAbsError);
-fprintf('    Max rel FD error in dC:   %.3e\n', report.mtop.dcMaxRelError);
-fprintf('    Max abs FD error in dV:   %.3e\n', report.mtop.dvMaxAbsError);
+fprintf('    Compliance:                       %.6f\n', report.classical.compliance);
+fprintf('    Max abs FD error in dC/drho:      %.3e\n', report.classical.dcMaxAbsError);
+fprintf('    Max rel FD error in dC/drho:      %.3e\n', report.classical.dcMaxRelError);
+fprintf('    Max abs FD error in dV/drho:      %.3e\n', report.classical.dvMaxAbsError);
+fprintf('  MTOP formulation (per-cell sensitivity)\n');
+fprintf('    Compliance:                       %.6f\n', report.mtop.compliance);
+fprintf('    Max abs FD error in dC/drho:      %.3e\n', report.mtop.dcMaxAbsError);
+fprintf('    Max rel FD error in dC/drho:      %.3e\n', report.mtop.dcMaxRelError);
+fprintf('    Max abs FD error in dV/drho:      %.3e\n', report.mtop.dvMaxAbsError);
+fprintf('  Heaviside chain (filter + projection + MTOP)\n');
+fprintf('    beta = %.2f, eta = %.2f\n', report.heaviside.beta, report.heaviside.eta);
+fprintf('    Compliance:                       %.6f\n', report.heaviside.compliance);
+fprintf('    Max abs FD error in dC/dx:        %.3e\n', report.heaviside.dcMaxAbsError);
+fprintf('    Max rel FD error in dC/dx:        %.3e\n', report.heaviside.dcMaxRelError);
 
 end
