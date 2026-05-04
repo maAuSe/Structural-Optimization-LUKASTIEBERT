@@ -104,18 +104,30 @@ filter + Heaviside chains, and the MMA + Heaviside continuation
 strategy of Wang, Lazarov and Sigmund (2011).
 
 Notes on convergence:
-Both density-filtered runs (classical OC and MTOP OC, step 3) reach the
-iteration cap of 300 without satisfying the change tolerance
+The density-filtered runs (classical OC and MTOP OC, step 3, and MTOP
+MMA density, step 4) do not satisfy the design-change tolerance
 epsilon = 0.01: the maximum design change oscillates between 0.04 and
 0.07 because the multiplicative OC update does not damp the
-high-frequency components of the update under density filtering. The
-MMA + density filter run of step 4 has the same issue at the same
-mesh resolution, with a residual change of about 0.05; switching the
-optimizer alone is not enough to fix it. The MMA + Heaviside runs of
-step 4 produce essentially black-and-white designs under continuation
-on beta; eta = 0.3 meets the change tolerance, while eta = 0.5 and
-eta = 0.7 reach the 500-iteration cap with final design changes
-just above epsilon (0.0110 and 0.0116 respectively).
+high-frequency components of the update under density filtering, and
+MMA inherits the same pathology. To stop these runs cleanly we use a
+secondary compliance-stability criterion: the optimization terminates
+when the relative spread of the compliance over a 20-iteration window
+drops below 1e-4. With this criterion all three density-filtered runs
+stop at well-defined iteration counts (237, 299, 419) rather than at
+the maximum-iteration cap (now set to 500). The MMA + Heaviside runs
+of step 4 produce essentially black-and-white designs under continuation
+on beta and all three eta values (0.3, 0.5, 0.7) satisfy the
+design-change tolerance once beta = beta_max = 16, in 419, 563 and
+522 iterations respectively (max iter cap = 800 for the Heaviside runs).
+
+Notes on timing:
+Each runner is instrumented with per-phase wall-clock timing for the
+FE assembly, FE solve, filter / chain rule, and optimizer (OC bisection
+or MMA subproblem). The cumulative phase times are written to the
+summary file and to the per-iteration history CSV, in addition to the
+total elapsed time. This is used in the report to decompose the
+measured speedups (FE solve dominates the gain; the filter and the
+optimizer scale with the density mesh and absorb part of it).
 
 Reproducing the figures:
 - Open MATLAB in matlab/ and run run_assignment.m. Step 1 and the

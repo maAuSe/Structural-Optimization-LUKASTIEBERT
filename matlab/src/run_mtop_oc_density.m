@@ -32,7 +32,9 @@ problem.penal = p.penal;
 problem.rmin = p.classicalFilterRadius;
 problem.tol = p.tol;
 problem.move = p.move;
-problem.maxIter = 300;
+problem.maxIter = 500;
+problem.complianceTol = 1e-4;
+problem.complianceWindow = 20;
 problem.E0 = 1;
 problem.Emin = 1e-9;
 problem.nu = 0.3;
@@ -103,6 +105,8 @@ rmin = problem.rmin;
 tol = problem.tol;
 move = problem.move;
 maxIter = problem.maxIter;
+complianceTol = problem.complianceTol;
+complianceWindow = problem.complianceWindow;
 E0 = problem.E0;
 Emin = problem.Emin;
 nu = problem.nu;
@@ -133,33 +137,48 @@ history.timeSeconds = zeros(maxIter, 1);
 history.compliance = zeros(maxIter, 1);
 history.volumeFraction = zeros(maxIter, 1);
 history.change = zeros(maxIter, 1);
+history.timeFEAssembly = zeros(maxIter, 1);
+history.timeFESolve = zeros(maxIter, 1);
+history.timeFilter = zeros(maxIter, 1);
+history.timeOptimizer = zeros(maxIter, 1);
 
 timer = tic;
 change = 1;
 iter = 0;
+complianceStable = false;
 
-while change > tol && iter < maxIter
+while change > tol && ~complianceStable && iter < maxIter
   iter = iter + 1;
 
+  tFilter = tic;
   xPhys = conv2(x, h, 'same') ./ Hs;
+  filterTime0 = toc(tFilter);
 
+  tAssembly = tic;
   sK = mtop_assemble_stiffness(xPhys, I_cells, ...
     densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin);
 
   K = sparse(iK, jK, sK);
   K = (K + K') / 2;
+  assemblyTime = toc(tAssembly);
+
+  tSolve = tic;
   U(freedofs) = K(freedofs, freedofs) \ F(freedofs);
+  solveTime = toc(tSolve);
 
   ceCells = mtop_strain_energy(U(edofMat), I_cells, ...
     densityPerX, densityPerY, feNelx, feNely);
   c = sum(sum((Emin + (E0 - Emin) * xPhys.^penal) .* ceCells));
   v = mean(xPhys(:));
 
+  tFilter = tic;
   dcdrho = -penal * (E0 - Emin) * xPhys.^(penal - 1) .* ceCells;
   dvdrho = ones(densityNely, densityNelx) / (densityNelx * densityNely);
   dcdx = conv2(dcdrho ./ Hs, h, 'same');
   dvdx = conv2(dvdrho ./ Hs, h, 'same');
+  filterTime1 = toc(tFilter);
 
+  tOpt = tic;
   l1 = 0;
   l2 = 1e9;
   while (l2 - l1) / (l1 + l2) > 1e-3
@@ -173,6 +192,7 @@ while change > tol && iter < maxIter
       l2 = lmid;
     end
   end
+  optimizerTime = toc(tOpt);
 
   change = max(abs(xnew(:) - x(:)));
   elapsed = toc(timer);
@@ -182,11 +202,23 @@ while change > tol && iter < maxIter
   history.compliance(iter) = c;
   history.volumeFraction(iter) = v;
   history.change(iter) = change;
+  history.timeFEAssembly(iter) = assemblyTime;
+  history.timeFESolve(iter) = solveTime;
+  history.timeFilter(iter) = filterTime0 + filterTime1;
+  history.timeOptimizer(iter) = optimizerTime;
+
+  if iter > complianceWindow
+    cWindow = history.compliance(iter - complianceWindow:iter);
+    cRel = (max(cWindow) - min(cWindow)) / max(abs(mean(cWindow)), eps);
+    if cRel < complianceTol
+      complianceStable = true;
+    end
+  end
 
   fprintf('[%s] iter: %4i | change: %9.5f | c: %12.5f | v: %9.5f | time: %9.2f s\n', ...
     datestr(now, 'HH:MM:SS'), iter, change, c, v, elapsed);
 
-  if change > tol
+  if change > tol && ~complianceStable
     x = xnew;
   end
 end
@@ -207,13 +239,21 @@ result.finalVolumeFraction = history.volumeFraction(end);
 result.finalChange = history.change(end);
 result.iterations = iter;
 result.elapsedSeconds = history.timeSeconds(end);
-result.converged = change <= tol;
+result.changeConverged = change <= tol;
+result.complianceConverged = complianceStable;
+result.converged = result.changeConverged || result.complianceConverged;
 result.filterKernel = h;
 result.filterWeights = Hs;
+result.timeBreakdown = struct();
+result.timeBreakdown.feAssembly = sum(history.timeFEAssembly);
+result.timeBreakdown.feSolve = sum(history.timeFESolve);
+result.timeBreakdown.filter = sum(history.timeFilter);
+result.timeBreakdown.optimizer = sum(history.timeOptimizer);
+result.timeBreakdown.total = result.elapsedSeconds;
 
 if ~result.converged
   warning('run_mtop_oc_density:notConverged', ...
-    'Maximum iteration count reached before the change tolerance was met.');
+    'Maximum iteration count reached before any convergence criterion was met.');
 end
 
 end
@@ -316,7 +356,10 @@ function write_history_csv(historyPath, history)
 
 T = table(history.iteration, history.timeSeconds, history.compliance, ...
   history.volumeFraction, history.change, ...
-  'VariableNames', {'iteration', 'time_seconds', 'compliance', 'volume_fraction', 'change'});
+  history.timeFEAssembly, history.timeFESolve, ...
+  history.timeFilter, history.timeOptimizer, ...
+  'VariableNames', {'iteration', 'time_seconds', 'compliance', 'volume_fraction', 'change', ...
+    'time_fe_assembly', 'time_fe_solve', 'time_filter', 'time_optimizer'});
 writetable(T, historyPath);
 
 end
@@ -335,9 +378,17 @@ fprintf(fid, 'Penalization power: %.6f\n', result.problem.penal);
 fprintf(fid, 'Density filter radius: %.6f density cells\n', result.problem.rmin);
 fprintf(fid, 'Move limit: %.6f\n', result.problem.move);
 fprintf(fid, 'Change tolerance: %.6f\n', result.problem.tol);
+fprintf(fid, 'Compliance stability tolerance: %.6f over %i iterations\n', ...
+  result.problem.complianceTol, result.problem.complianceWindow);
 fprintf(fid, 'Converged: %i\n', result.converged);
+fprintf(fid, 'Converged via change tol: %i\n', result.changeConverged);
+fprintf(fid, 'Converged via compliance plateau: %i\n', result.complianceConverged);
 fprintf(fid, 'Iterations: %i\n', result.iterations);
 fprintf(fid, 'Elapsed time [s]: %.6f\n', result.elapsedSeconds);
+fprintf(fid, 'Cumulative FE assembly time [s]: %.6f\n', result.timeBreakdown.feAssembly);
+fprintf(fid, 'Cumulative FE solve time [s]: %.6f\n', result.timeBreakdown.feSolve);
+fprintf(fid, 'Cumulative filter time [s]: %.6f\n', result.timeBreakdown.filter);
+fprintf(fid, 'Cumulative optimizer time [s]: %.6f\n', result.timeBreakdown.optimizer);
 fprintf(fid, 'Final MTOP compliance: %.12f\n', result.finalCompliance);
 fprintf(fid, 'Final fine-mesh compliance of MTOP design: %.12f\n', result.fineMeshCompliance);
 fprintf(fid, 'Fine-mesh compliance ratio against classical (density): %.12f\n', result.fineMeshComplianceRatio);

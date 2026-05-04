@@ -6,10 +6,17 @@ Volume fraction target: 0.500000
 Penalization power: 3.000000
 Density filter radius: 24.000000 density cells
 Change tolerance: 0.010000
-Converged: 0
-Iterations: 300
-Elapsed time [s]: 185.154450
-Final MTOP compliance: 234.625601909892
-Final fine-mesh compliance: 240.247623660119
-Final volume fraction: 0.499999194295
-Final maximum design change: 0.054949063890
+Compliance stability tolerance: 0.000100 over 20 iterations
+Converged: 1
+Converged via change tol: 0
+Converged via compliance plateau: 1
+Iterations: 419
+Elapsed time [s]: 253.886569
+Cumulative FE assembly time [s]: 19.365139
+Cumulative FE solve time [s]: 24.268302
+Cumulative filter time [s]: 14.530099
+Cumulative optimizer time [s]: 192.138281
+Final MTOP compliance: 234.455490385497
+Final fine-mesh compliance: 240.076973118871
+Final volume fraction: 0.499999497923
+Final maximum design change: 0.047043323298

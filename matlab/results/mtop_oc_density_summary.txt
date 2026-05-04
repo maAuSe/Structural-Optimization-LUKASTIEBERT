@@ -7,15 +7,22 @@ Penalization power: 3.000000
 Density filter radius: 24.000000 density cells
 Move limit: 0.200000
 Change tolerance: 0.010000
-Converged: 0
-Iterations: 300
-Elapsed time [s]: 139.692588
-Final MTOP compliance: 235.358205600995
-Final fine-mesh compliance of MTOP design: 240.979138245068
-Fine-mesh compliance ratio against classical (density): 1.000011808932
-Final volume fraction: 0.500003179315
-Final maximum design change: 0.052988292144
-Speedup against classical (density) wall-clock time: 6.213058157129
-Mean absolute density difference: 0.000484802213
-RMS density difference: 0.000951469354
-Maximum absolute density difference: 0.006458412076
+Compliance stability tolerance: 0.000100 over 20 iterations
+Converged: 1
+Converged via change tol: 0
+Converged via compliance plateau: 1
+Iterations: 299
+Elapsed time [s]: 136.567797
+Cumulative FE assembly time [s]: 12.160043
+Cumulative FE solve time [s]: 16.032507
+Cumulative filter time [s]: 9.166663
+Cumulative optimizer time [s]: 96.836876
+Final MTOP compliance: 235.362700637659
+Final fine-mesh compliance of MTOP design: 240.983644672758
+Fine-mesh compliance ratio against classical (density): 0.999587661867
+Final volume fraction: 0.499996919882
+Final maximum design change: 0.051566047912
+Speedup against classical (density) wall-clock time: 5.073712571601
+Mean absolute density difference: 0.002886322363
+RMS density difference: 0.005561407931
+Maximum absolute density difference: 0.027862535619

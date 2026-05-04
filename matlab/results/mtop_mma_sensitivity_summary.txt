@@ -8,8 +8,12 @@ Sensitivity filter radius: 24.000000 density cells
 Change tolerance: 0.010000
 Converged: 1
 Iterations: 250
-Elapsed time [s]: 186.925037
+Elapsed time [s]: 187.283524
 Final MTOP compliance: 220.874977749622
 Final fine-mesh compliance: 226.501684141454
 Final volume fraction: 0.499999640918
 Final maximum design change: 0.008270593999
+Cumulative FE assembly time [s]: 10.954270
+Cumulative FE solve time [s]: 13.453202
+Cumulative filter time [s]: 2.792047
+Cumulative optimizer time [s]: 158.010014

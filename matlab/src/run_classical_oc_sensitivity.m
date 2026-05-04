@@ -92,6 +92,10 @@ history.timeSeconds = zeros(maxIter, 1);
 history.compliance = zeros(maxIter, 1);
 history.volumeFraction = zeros(maxIter, 1);
 history.change = zeros(maxIter, 1);
+history.timeFEAssembly = zeros(maxIter, 1);
+history.timeFESolve = zeros(maxIter, 1);
+history.timeFilter = zeros(maxIter, 1);
+history.timeOptimizer = zeros(maxIter, 1);
 
 timer = tic;
 change = 1;
@@ -102,19 +106,27 @@ while change > tol && iter < maxIter
 
   xPhys = x;
 
+  tAssembly = tic;
   sK = reshape(KE(:) * (Emin + xPhys(:)'.^penal * (E0 - Emin)), 64 * nelx * nely, 1);
   K = sparse(iK, jK, sK);
   K = (K + K') / 2;
+  assemblyTime = toc(tAssembly);
+
+  tSolve = tic;
   U(freedofs) = K(freedofs, freedofs) \ F(freedofs);
+  solveTime = toc(tSolve);
 
   ce = reshape(sum((U(edofMat) * KE) .* U(edofMat), 2), nely, nelx);
   c = sum(sum((Emin + xPhys.^penal * (E0 - Emin)) .* ce));
   v = sum(xPhys(:)) / nelx / nely;
 
+  tFilter = tic;
   dcdx = -penal * (E0 - Emin) * xPhys.^(penal - 1) .* ce;
   dvdx = ones(nely, nelx) / nelx / nely;
   dcdx = conv2(dcdx .* xPhys, h, 'same') ./ Hs ./ max(1e-3, xPhys);
+  filterTime = toc(tFilter);
 
+  tOpt = tic;
   l1 = 0;
   l2 = 1e9;
   while (l2 - l1) / (l1 + l2) > 1e-3
@@ -127,6 +139,7 @@ while change > tol && iter < maxIter
       l2 = lmid;
     end
   end
+  optimizerTime = toc(tOpt);
 
   change = max(abs(xnew(:) - x(:)));
   elapsed = toc(timer);
@@ -136,6 +149,10 @@ while change > tol && iter < maxIter
   history.compliance(iter) = c;
   history.volumeFraction(iter) = v;
   history.change(iter) = change;
+  history.timeFEAssembly(iter) = assemblyTime;
+  history.timeFESolve(iter) = solveTime;
+  history.timeFilter(iter) = filterTime;
+  history.timeOptimizer(iter) = optimizerTime;
 
   fprintf('[%s] iter: %4i | change: %9.5f | c: %12.5f | v: %9.5f | time: %9.2f s\n', ...
     datestr(now, 'HH:MM:SS'), iter, change, c, v, elapsed);
@@ -164,6 +181,12 @@ result.elapsedSeconds = history.timeSeconds(end);
 result.converged = change <= tol;
 result.filterKernel = h;
 result.filterWeights = Hs;
+result.timeBreakdown = struct();
+result.timeBreakdown.feAssembly = sum(history.timeFEAssembly);
+result.timeBreakdown.feSolve = sum(history.timeFESolve);
+result.timeBreakdown.filter = sum(history.timeFilter);
+result.timeBreakdown.optimizer = sum(history.timeOptimizer);
+result.timeBreakdown.total = result.elapsedSeconds;
 
 if ~result.converged
   warning('run_classical_oc_sensitivity:notConverged', ...
@@ -186,7 +209,10 @@ function write_history_csv(historyPath, history)
 
 T = table(history.iteration, history.timeSeconds, history.compliance, ...
   history.volumeFraction, history.change, ...
-  'VariableNames', {'iteration', 'time_seconds', 'compliance', 'volume_fraction', 'change'});
+  history.timeFEAssembly, history.timeFESolve, ...
+  history.timeFilter, history.timeOptimizer, ...
+  'VariableNames', {'iteration', 'time_seconds', 'compliance', 'volume_fraction', 'change', ...
+    'time_fe_assembly', 'time_fe_solve', 'time_filter', 'time_optimizer'});
 writetable(T, historyPath);
 
 end
@@ -209,6 +235,10 @@ fprintf(fid, 'Elapsed time [s]: %.6f\n', result.elapsedSeconds);
 fprintf(fid, 'Final compliance: %.12f\n', result.finalCompliance);
 fprintf(fid, 'Final volume fraction: %.12f\n', result.finalVolumeFraction);
 fprintf(fid, 'Final maximum design change: %.12f\n', result.finalChange);
+fprintf(fid, 'Cumulative FE assembly time [s]: %.6f\n', result.timeBreakdown.feAssembly);
+fprintf(fid, 'Cumulative FE solve time [s]: %.6f\n', result.timeBreakdown.feSolve);
+fprintf(fid, 'Cumulative filter time [s]: %.6f\n', result.timeBreakdown.filter);
+fprintf(fid, 'Cumulative optimizer time [s]: %.6f\n', result.timeBreakdown.optimizer);
 
 end
 

@@ -5,9 +5,16 @@ Penalization power: 3.000000
 Density filter radius: 24.000000 elements
 Move limit: 0.200000
 Change tolerance: 0.010000
-Converged: 0
-Iterations: 300
-Elapsed time [s]: 867.918171
-Final compliance: 240.976292572484
-Final volume fraction: 0.499999629203
-Final maximum design change: 0.053772722668
+Compliance stability tolerance: 0.000100 over 20 iterations
+Converged: 1
+Converged via change tol: 0
+Converged via compliance plateau: 1
+Iterations: 237
+Elapsed time [s]: 692.905747
+Final compliance: 241.083052408486
+Final volume fraction: 0.499996637284
+Final maximum design change: 0.049073012596
+Cumulative FE assembly time [s]: 102.054812
+Cumulative FE solve time [s]: 498.314053
+Cumulative filter time [s]: 7.316985
+Cumulative optimizer time [s]: 76.877174

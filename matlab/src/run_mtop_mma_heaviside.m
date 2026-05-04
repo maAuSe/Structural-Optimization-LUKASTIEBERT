@@ -32,7 +32,7 @@ problem.volfrac = p.volfrac;
 problem.penal = p.penal;
 problem.rmin = p.classicalFilterRadius;
 problem.tol = p.tol;
-problem.maxIter = 500;
+problem.maxIter = 800;
 problem.E0 = 1;
 problem.Emin = 1e-9;
 problem.nu = 0.3;
@@ -126,6 +126,10 @@ history.compliance = zeros(maxIter, 1);
 history.volumeFraction = zeros(maxIter, 1);
 history.change = zeros(maxIter, 1);
 history.beta = zeros(maxIter, 1);
+history.timeFEAssembly = zeros(maxIter, 1);
+history.timeFESolve = zeros(maxIter, 1);
+history.timeFilter = zeros(maxIter, 1);
+history.timeOptimizer = zeros(maxIter, 1);
 
 timer = tic;
 change = 1;
@@ -136,15 +140,22 @@ mmaparams = [];
 while (change > tol || beta < betaMax) && iter < maxIter
   iter = iter + 1;
 
+  tFilter = tic;
   xTilde = conv2(x, h, 'same') ./ Hs;
   xPhys = (tanh(beta * eta) + tanh(beta * (xTilde - eta))) ./ ...
     (tanh(beta * eta) + tanh(beta * (1 - eta)));
+  filterTime0 = toc(tFilter);
 
+  tAssembly = tic;
   sK = mtop_assemble_stiffness(xPhys, I_cells, ...
     densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin);
   K = sparse(iK, jK, sK);
   K = (K + K') / 2;
+  assemblyTime = toc(tAssembly);
+
+  tSolve = tic;
   U(freedofs) = K(freedofs, freedofs) \ F(freedofs);
+  solveTime = toc(tSolve);
 
   ceCells = mtop_strain_energy(U(edofMat), I_cells, ...
     densityPerX, densityPerY, feNelx, feNely);
@@ -153,6 +164,7 @@ while (change > tol || beta < betaMax) && iter < maxIter
   f0 = c / 100;
   f = v / volfrac - 1;
 
+  tFilter = tic;
   dcdrho = -penal * (E0 - Emin) * xPhys.^(penal - 1) .* ceCells;
   dvdrho = ones(densityNely, densityNelx) / (densityNelx * densityNely);
   dxPhysdxTilde = beta * sech(beta * (xTilde - eta)).^2 ./ ...
@@ -163,9 +175,12 @@ while (change > tol || beta < betaMax) && iter < maxIter
   dvdx = conv2(dvdxTilde ./ Hs, h, 'same');
   df0dx = dcdx(:)' / 100;
   dfdx = dvdx(:)' / volfrac;
+  filterTime1 = toc(tFilter);
 
+  tOpt = tic;
   [xnew, ~, ~, ~, mmaparams, ~, change] = mma(x(:), xmin, xmax, f0, f, df0dx, dfdx, mmaparams, 'silent');
   xnew = reshape(xnew, densityNely, densityNelx);
+  optimizerTime = toc(tOpt);
 
   elapsed = toc(timer);
 
@@ -175,6 +190,10 @@ while (change > tol || beta < betaMax) && iter < maxIter
   history.volumeFraction(iter) = v;
   history.change(iter) = change;
   history.beta(iter) = beta;
+  history.timeFEAssembly(iter) = assemblyTime;
+  history.timeFESolve(iter) = solveTime;
+  history.timeFilter(iter) = filterTime0 + filterTime1;
+  history.timeOptimizer(iter) = optimizerTime;
 
   fprintf('[%s] iter: %4i | beta: %5.2f | change: %9.5f | c: %12.5f | v: %9.5f | time: %9.2f s\n', ...
     datestr(now, 'HH:MM:SS'), iter, beta, change, c, v, elapsed);
@@ -212,6 +231,12 @@ result.elapsedSeconds = history.timeSeconds(end);
 result.converged = (change <= tol) && (beta >= betaMax);
 result.filterKernel = h;
 result.filterWeights = Hs;
+result.timeBreakdown = struct();
+result.timeBreakdown.feAssembly = sum(history.timeFEAssembly);
+result.timeBreakdown.feSolve = sum(history.timeFESolve);
+result.timeBreakdown.filter = sum(history.timeFilter);
+result.timeBreakdown.optimizer = sum(history.timeOptimizer);
+result.timeBreakdown.total = result.elapsedSeconds;
 
 if ~result.converged
   warning('run_mtop_mma_heaviside:notConverged', ...
@@ -307,7 +332,10 @@ function write_history_csv(historyPath, history)
 
 T = table(history.iteration, history.timeSeconds, history.compliance, ...
   history.volumeFraction, history.change, history.beta, ...
-  'VariableNames', {'iteration', 'time_seconds', 'compliance', 'volume_fraction', 'change', 'beta'});
+  history.timeFEAssembly, history.timeFESolve, ...
+  history.timeFilter, history.timeOptimizer, ...
+  'VariableNames', {'iteration', 'time_seconds', 'compliance', 'volume_fraction', 'change', 'beta', ...
+    'time_fe_assembly', 'time_fe_solve', 'time_filter', 'time_optimizer'});
 writetable(T, historyPath);
 
 end
@@ -336,6 +364,10 @@ fprintf(fid, 'Final MTOP compliance: %.12f\n', result.finalCompliance);
 fprintf(fid, 'Final fine-mesh compliance: %.12f\n', result.fineMeshCompliance);
 fprintf(fid, 'Final volume fraction: %.12f\n', result.finalVolumeFraction);
 fprintf(fid, 'Final maximum design change: %.12f\n', result.finalChange);
+fprintf(fid, 'Cumulative FE assembly time [s]: %.6f\n', result.timeBreakdown.feAssembly);
+fprintf(fid, 'Cumulative FE solve time [s]: %.6f\n', result.timeBreakdown.feSolve);
+fprintf(fid, 'Cumulative filter time [s]: %.6f\n', result.timeBreakdown.filter);
+fprintf(fid, 'Cumulative optimizer time [s]: %.6f\n', result.timeBreakdown.optimizer);
 
 end
 

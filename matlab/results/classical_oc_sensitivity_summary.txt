@@ -7,7 +7,11 @@ Move limit: 0.200000
 Change tolerance: 0.010000
 Converged: 1
 Iterations: 94
-Elapsed time [s]: 241.986990
+Elapsed time [s]: 263.228930
 Final compliance: 224.596096501723
 Final volume fraction: 0.500074422060
 Final maximum design change: 0.009945509622
+Cumulative FE assembly time [s]: 43.026931
+Cumulative FE solve time [s]: 214.769227
+Cumulative filter time [s]: 1.023501
+Cumulative optimizer time [s]: 0.905644
