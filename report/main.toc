@@ -17,20 +17,21 @@
 \contentsline {subsection}{\numberline {6.2}Quantities recorded per iteration}{8}{subsection.6.2}%
 \contentsline {section}{\numberline {7}Results}{8}{section.7}%
 \contentsline {subsection}{\numberline {7.1}Classical OC baseline}{8}{subsection.7.1}%
-\contentsline {subsection}{\numberline {7.2}MTOP OC with sensitivity filtering}{9}{subsection.7.2}%
-\contentsline {subsection}{\numberline {7.3}Classical OC with density filtering}{9}{subsection.7.3}%
-\contentsline {subsection}{\numberline {7.4}MTOP OC with density filtering}{9}{subsection.7.4}%
-\contentsline {subsection}{\numberline {7.5}MTOP MMA: sensitivity and density filtering}{15}{subsection.7.5}%
-\contentsline {subsection}{\numberline {7.6}MTOP MMA with Heaviside projection}{15}{subsection.7.6}%
-\contentsline {subsection}{\numberline {7.7}Runtime comparison}{20}{subsection.7.7}%
-\contentsline {section}{\numberline {8}Discussion}{20}{section.8}%
-\contentsline {subsection}{\numberline {8.1}Convergence behavior}{20}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}Topological similarity of the two designs}{22}{subsection.8.2}%
-\contentsline {subsection}{\numberline {8.3}Origin of the speedup}{22}{subsection.8.3}%
-\contentsline {subsection}{\numberline {8.4}Native versus fine-mesh compliance}{23}{subsection.8.4}%
-\contentsline {subsection}{\numberline {8.5}Density filtering with vanilla optimality criteria}{23}{subsection.8.5}%
-\contentsline {subsection}{\numberline {8.6}Density filtering versus sensitivity filtering as a comparison setting}{23}{subsection.8.6}%
-\contentsline {subsection}{\numberline {8.7}MMA versus optimality criteria}{24}{subsection.8.7}%
-\contentsline {subsection}{\numberline {8.8}Effect of the Heaviside threshold $\eta $}{25}{subsection.8.8}%
-\contentsline {section}{\numberline {9}Use of generative AI}{25}{section.9}%
-\contentsline {section}{\numberline {10}Conclusion}{25}{section.10}%
+\contentsline {subsection}{\numberline {7.2}MTOP OC with sensitivity filtering}{11}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Classical OC with density filtering}{15}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}MTOP OC with density filtering}{15}{subsection.7.4}%
+\contentsline {subsection}{\numberline {7.5}MTOP MMA: sensitivity and density filtering}{19}{subsection.7.5}%
+\contentsline {subsection}{\numberline {7.6}MTOP MMA with Heaviside projection}{19}{subsection.7.6}%
+\contentsline {subsection}{\numberline {7.7}Runtime comparison}{23}{subsection.7.7}%
+\contentsline {section}{\numberline {8}Discussion}{23}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Convergence behavior}{23}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Topological similarity of the two designs}{23}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}Origin of the speedup}{24}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}Native versus fine-mesh compliance}{25}{subsection.8.4}%
+\contentsline {subsection}{\numberline {8.5}Density filtering with vanilla optimality criteria}{25}{subsection.8.5}%
+\contentsline {subsection}{\numberline {8.6}Density filtering versus sensitivity filtering as a comparison setting}{25}{subsection.8.6}%
+\contentsline {subsection}{\numberline {8.7}MMA versus optimality criteria}{26}{subsection.8.7}%
+\contentsline {subsection}{\numberline {8.8}Effect of the Heaviside threshold $\eta $}{26}{subsection.8.8}%
+\contentsline {section}{\numberline {9}Use of generative AI}{27}{section.9}%
+\contentsline {section}{\numberline {10}Conclusion}{27}{section.10}%
+\contentsline {section}{Code of Conduct}{29}{section*.25}%
