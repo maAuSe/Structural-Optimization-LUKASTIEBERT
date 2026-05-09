@@ -21,13 +21,31 @@
 \usetikzlibrary{decorations.pathreplacing}
 
 \pretocmd{\section}{\FloatBarrier}{}{}
-\pretocmd{\subsection}{\FloatBarrier}{}{}
 
 
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{0.8em}
+\setlength{\parskip}{0.65em}
+\setlength{\textfloatsep}{0.8em plus 0.2em minus 0.2em}
+\setlength{\floatsep}{0.7em plus 0.2em minus 0.2em}
+\setlength{\intextsep}{0.8em plus 0.2em minus 0.2em}
+\captionsetup{font=small,skip=4pt}
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.82}
+\setcounter{topnumber}{5}
+\setcounter{bottomnumber}{3}
+\setcounter{totalnumber}{7}
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@fpsep}{0.8em plus 1fil}
+\setlength{\@fpbot}{0pt plus 1fil}
+\makeatother
 
 \graphicspath{{figures/}{../matlab/figures/}}
+\newcommand{\designfigwidth}{0.74\textwidth}
+\newcommand{\plotfigwidth}{0.78\textwidth}
+\newcommand{\comparisonfigwidth}{0.68\textwidth}
 
 \newcommand{\reporttitle}{Multiresolution topology optimization}
 \newcommand{\reportsubtitle}{Computational-efficiency assessment for the half MBB beam with optimality criteria, the method of moving asymptotes, and Heaviside projection}
@@ -117,7 +135,7 @@ The structure is the half MBB beam used in the Chapter~9 lecture code~\cite{andr
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{geometry.png}
+  \includegraphics[width=0.82\textwidth]{geometry.png}
   \caption{Geometry, boundary conditions and loading of the half MBB beam.}
   \label{fig:geometry}
 \end{figure}
@@ -240,7 +258,7 @@ with penalization power $p=3$, $E_{0}=1$ and $E_{\min}=10^{-9}$. The volume frac
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.75\textwidth]{simp_interpolation.png}
+  \includegraphics[width=0.70\textwidth]{simp_interpolation.png}
   \caption{SIMP interpolation between void and solid material for different penalization powers. The report uses $p=3$, which strongly penalizes intermediate physical densities; at the prescribed volume fraction $\rho=V^{*}=0.5$, the normalized stiffness is only $E/E_{0}=0.125$.}
   \label{fig:simp-interpolation}
 \end{figure}
@@ -313,7 +331,7 @@ A filter radius of $r_{\min}=24$ density cells is used both for the classical me
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.95\textwidth]{cone_kernel_radius_24.png}
+  \includegraphics[width=0.82\textwidth]{cone_kernel_radius_24.png}
   \caption{Cone-kernel filter used in all experiments. The central cell receives weight $r_{\min}$, neighboring cells receive weights that decay linearly with distance, and cells at or beyond $r_{\min}=24$ density cells receive zero weight. The same stencil is applied on the $600\times 200$ density grid for both the classical and MTOP formulations.}
   \label{fig:cone-kernel}
 \end{figure}
@@ -394,21 +412,21 @@ The classical OC baseline of step~1 converges in $94$ iterations. The final comp
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\textwidth]{classical_oc_sensitivity_design.png}
+  \includegraphics[width=\designfigwidth]{classical_oc_sensitivity_design.png}
   \caption{Optimized classical OC design with sensitivity filtering on a $600\times 200$ mesh, $V^{*}=0.5$, $p=3$ and $r_{\min}=24$ density cells. Black represents solid material, white represents void.}
   \label{fig:classical_oc_sensitivity_design}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.92\textwidth]{classical_oc_sensitivity_convergence_iter.pdf}
+  \includegraphics[width=\plotfigwidth]{classical_oc_sensitivity_convergence_iter.pdf}
   \caption{Classical OC convergence history versus iteration number: compliance (top) and volume fraction (bottom).}
   \label{fig:classical_oc_sensitivity_convergence_iter}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.92\textwidth]{classical_oc_sensitivity_convergence_time.pdf}
+  \includegraphics[width=\plotfigwidth]{classical_oc_sensitivity_convergence_time.pdf}
   \caption{Classical OC convergence history versus elapsed wall-clock time: compliance (top) and volume fraction (bottom). The same data are used in \cref{fig:mtop_oc_sensitivity_convergence_time_compare} for the runtime comparison with MTOP.}
   \label{fig:classical_oc_sensitivity_convergence_time}
 \end{figure}
@@ -419,28 +437,28 @@ The MTOP OC run reaches the same convergence tolerance in $95$ iterations, essen
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\textwidth]{mtop_oc_sensitivity_design.png}
+  \includegraphics[width=\designfigwidth]{mtop_oc_sensitivity_design.png}
   \caption{Optimized MTOP OC design with a $120\times 40$ analysis mesh and $5\times 5$ density cells per analysis element.}
   \label{fig:mtop_oc_sensitivity_design}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.82\textwidth]{mtop_oc_sensitivity_design_difference.png}
+  \includegraphics[width=\comparisonfigwidth]{mtop_oc_sensitivity_design_difference.png}
   \caption{Comparison of the classical and MTOP OC designs (top, middle) and signed density difference $\rho_{\mathrm{mtop}}-\rho_{\mathrm{cl}}$ (bottom). The differences are concentrated on the boundaries of the structural members, where the per-cell midpoint integration of the multiresolution stiffness matrix differs most from the analytical Q4 integration of the classical formulation. The maximum absolute density difference is $0.0222$, the RMS difference is $0.0027$ and the mean absolute density difference is $0.0013$.}
   \label{fig:mtop_oc_sensitivity_design_difference}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.92\textwidth]{mtop_oc_sensitivity_convergence_iter_compare.pdf}
+  \includegraphics[width=\plotfigwidth]{mtop_oc_sensitivity_convergence_iter_compare.pdf}
   \caption{Classical and MTOP OC convergence histories versus iteration number. The two histories are nearly indistinguishable.}
   \label{fig:mtop_oc_sensitivity_convergence_iter_compare}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.92\textwidth]{mtop_oc_sensitivity_convergence_time_compare.pdf}
+  \includegraphics[width=\plotfigwidth]{mtop_oc_sensitivity_convergence_time_compare.pdf}
   \caption{Classical and MTOP OC convergence histories versus wall-clock time. The MTOP curve is compressed against the left axis because each iteration solves a much smaller equilibrium problem.}
   \label{fig:mtop_oc_sensitivity_convergence_time_compare}
 \end{figure}
@@ -451,7 +469,7 @@ The third experiment replaces the sensitivity filter by a density filter while k
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\textwidth]{classical_oc_density_design.png}
+  \includegraphics[width=\designfigwidth]{classical_oc_density_design.png}
   \caption{Optimized classical OC design with density filtering on a $600\times 200$ mesh, $V^{*}=0.5$, $p=3$ and $r_{\min}=24$ density cells. The grey halo around each member width corresponds to the filter radius and reflects the minimum length scale enforced by the density filter.}
   \label{fig:classical_oc_density_design}
 \end{figure}
@@ -462,28 +480,28 @@ The MTOP run with density filtering shows the same oscillation pattern as the cl
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\textwidth]{mtop_oc_density_design.png}
+  \includegraphics[width=\designfigwidth]{mtop_oc_density_design.png}
   \caption{Optimized MTOP OC design with density filtering, on a $120\times 40$ analysis mesh and $5\times 5$ density cells per analysis element.}
   \label{fig:mtop_oc_density_design}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.82\textwidth]{mtop_oc_density_design_difference.png}
+  \includegraphics[width=\comparisonfigwidth]{mtop_oc_density_design_difference.png}
   \caption{Comparison of the classical and MTOP OC designs with density filtering (top, middle) and signed density difference $\rho_{\mathrm{mtop}}-\rho_{\mathrm{cl}}$ (bottom). The maximum absolute density difference is $0.0065$, the RMS difference is $0.0010$ and the mean absolute density difference is $0.0005$. The differences are markedly smaller than for sensitivity filtering (\cref{fig:mtop_oc_sensitivity_design_difference}) because the density filter pre-smooths the design variables before the SIMP analysis, so the choice of integration scheme inside the analysis element has less effect on the resulting layout.}
   \label{fig:mtop_oc_density_design_difference}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.92\textwidth]{mtop_oc_density_convergence_iter_compare.pdf}
+  \includegraphics[width=\plotfigwidth]{mtop_oc_density_convergence_iter_compare.pdf}
   \caption{Classical and MTOP OC convergence histories versus iteration number, for density filtering. The compliance is well-stabilized after about fifty iterations, but the maximum design change cannot reach the $\varepsilon=0.01$ tolerance within the iteration budget for either formulation.}
   \label{fig:mtop_oc_density_convergence_iter_compare}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.92\textwidth]{mtop_oc_density_convergence_time_compare.pdf}
+  \includegraphics[width=\plotfigwidth]{mtop_oc_density_convergence_time_compare.pdf}
   \caption{Classical and MTOP OC convergence histories versus wall-clock time, for density filtering. Both runs are stopped by the compliance-stability criterion of Section~\ref{sec:convergence}, at $237$ and $299$ iterations respectively; the wall-clock speedup of MTOP over the classical run is $5.07$.}
   \label{fig:mtop_oc_density_convergence_time_compare}
 \end{figure}
@@ -498,14 +516,14 @@ Step~4 keeps the multiresolution analysis mesh of step~2 and the same filter rad
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\textwidth]{mtop_mma_sensitivity_design.png}
+  \includegraphics[width=\designfigwidth]{mtop_mma_sensitivity_design.png}
   \caption{Optimized MTOP MMA design with sensitivity filtering.}
   \label{fig:mtop_mma_sensitivity_design}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\textwidth]{mtop_mma_density_design.png}
+  \includegraphics[width=\designfigwidth]{mtop_mma_density_design.png}
   \caption{Optimized MTOP MMA design with density filtering.}
   \label{fig:mtop_mma_density_design}
 \end{figure}
@@ -537,7 +555,7 @@ Heaviside projection is applied on top of density filtering with three threshold
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.92\textwidth]{mtop_mma_heaviside_eta_050_convergence_iter.pdf}
+  \includegraphics[width=\plotfigwidth]{mtop_mma_heaviside_eta_050_convergence_iter.pdf}
   \caption{Convergence history for the symmetric Heaviside run ($\eta=0.5$): compliance, volume fraction and the continuation parameter $\beta$ versus iteration number. Each $\beta$ doubling corresponds to a small jump in the compliance because the projection becomes sharper. The final design is reached at $\beta=\beta_{\max}=16$.}
   \label{fig:mtop_mma_heaviside_eta_050_convergence_iter}
 \end{figure}
@@ -546,14 +564,14 @@ The corresponding histories for the asymmetric thresholds $\eta=0.3$ and $\eta=0
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.92\textwidth]{mtop_mma_heaviside_eta_030_convergence_iter.pdf}
+  \includegraphics[width=\plotfigwidth]{mtop_mma_heaviside_eta_030_convergence_iter.pdf}
   \caption{Convergence history for the solid-biased Heaviside run ($\eta=0.3$): compliance, volume fraction and the continuation parameter $\beta$ versus iteration number.}
   \label{fig:mtop_mma_heaviside_eta_030_convergence_iter}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.92\textwidth]{mtop_mma_heaviside_eta_070_convergence_iter.pdf}
+  \includegraphics[width=\plotfigwidth]{mtop_mma_heaviside_eta_070_convergence_iter.pdf}
   \caption{Convergence history for the void-biased Heaviside run ($\eta=0.7$): compliance, volume fraction and the continuation parameter $\beta$ versus iteration number.}
   \label{fig:mtop_mma_heaviside_eta_070_convergence_iter}
 \end{figure}
