@@ -10,6 +10,8 @@
 \usepackage{siunitx}
 \usepackage{hyperref}
 \usepackage{cleveref}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}
 
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.8em}
@@ -104,7 +106,7 @@ The structure is the half MBB beam used in the Chapter~9 lecture code~\cite{andr
 
 \subsection{Discretization}
 
-The classical baseline uses a finite element mesh of $600\times 200$ elements. The MTOP model uses a coarse finite element (analysis) mesh of $120\times 40$ elements with $5\times 5$ density cells per analysis element, giving the same $600\times 200$ density resolution as the classical model. The two discretizations are summarized in \cref{tab:discretization}.
+The classical baseline uses a finite element mesh of $600\times 200$ elements. The MTOP model uses a coarse finite element (analysis) mesh of $120\times 40$ elements with $5\times 5$ density cells per analysis element, giving the same $600\times 200$ density resolution as the classical model. The two discretizations are summarized in \cref{tab:discretization} and illustrated schematically in \cref{fig:discretization-grids}; the per-element $5\times 5$ density-cell layout that defines the MTOP enrichment is detailed in \cref{fig:mtop-cell}.
 
 \begin{table}[htbp]
   \centering
@@ -119,6 +121,93 @@ The classical baseline uses a finite element mesh of $600\times 200$ elements. T
     \bottomrule
   \end{tabular}
 \end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.49\textwidth}
+    \centering
+    \begin{tikzpicture}[scale=0.26]
+      \fill[gray!4] (0,0) rectangle (30,10);
+      \foreach \x in {0,...,30}
+        \draw[gray!55, line width=0.25pt] (\x, 0) -- (\x, 10);
+      \foreach \y in {0,...,10}
+        \draw[gray!55, line width=0.25pt] (0, \y) -- (30, \y);
+      \draw[black, line width=0.9pt] (0,0) rectangle (30,10);
+      \node[anchor=north, font=\scriptsize, gray!50!black] at (15, -0.3)
+        {\textit{analysis mesh = density mesh}};
+    \end{tikzpicture}
+    \caption{Classical formulation.}
+    \label{fig:disc-classical}
+  \end{subfigure}\hfill
+  \begin{subfigure}[b]{0.49\textwidth}
+    \centering
+    \begin{tikzpicture}[scale=0.26]
+      \fill[gray!4] (0,0) rectangle (30,10);
+      \foreach \x in {0,...,30}
+        \draw[gray!45, line width=0.18pt] (\x, 0) -- (\x, 10);
+      \foreach \y in {0,...,10}
+        \draw[gray!45, line width=0.18pt] (0, \y) -- (30, \y);
+      \fill[orange!22] (10,5) rectangle (15,10);
+      \foreach \x in {10,11,12,13,14,15}
+        \draw[gray!45, line width=0.18pt] (\x, 5) -- (\x, 10);
+      \foreach \y in {5,6,7,8,9,10}
+        \draw[gray!45, line width=0.18pt] (10, \y) -- (15, \y);
+      \foreach \x in {0,5,10,15,20,25,30}
+        \draw[blue!55!black, line width=1.1pt] (\x, 0) -- (\x, 10);
+      \foreach \y in {0,5,10}
+        \draw[blue!55!black, line width=1.1pt] (0, \y) -- (30, \y);
+      \draw[black, line width=0.9pt] (0,0) rectangle (30,10);
+      \node[anchor=north, font=\scriptsize, gray!50!black] at (15, -0.3)
+        {\textcolor{blue!55!black}{\textit{analysis}} + \textcolor{gray!55!black}{\textit{density}} mesh};
+    \end{tikzpicture}
+    \caption{MTOP formulation; the orange element is detailed in \cref{fig:mtop-cell}.}
+    \label{fig:disc-mtop}
+  \end{subfigure}
+  \caption{Classical and MTOP discretizations at aspect ratio $3{:}1$.}
+  \label{fig:discretization-grids}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[scale=1.4, every node/.style={font=\small}]
+    \fill[blue!7] (0,0) rectangle (5,5);
+    \fill[orange!22] (3,2) rectangle (4,3);
+    \foreach \i in {0,1,2,3,4,5} {
+      \draw[gray!55, line width=0.45pt] (\i, 0) -- (\i, 5);
+      \draw[gray!55, line width=0.45pt] (0, \i) -- (5, \i);
+    }
+    \foreach \x in {0.5, 1.5, 2.5, 3.5, 4.5}
+      \foreach \y in {0.5, 1.5, 2.5, 3.5, 4.5} {
+        \fill[red!80!black] (\x, \y) circle (0.07);
+      }
+    \draw[blue!60!black, line width=1.5pt] (0,0) rectangle (5,5);
+    \foreach \x in {0,5}
+      \foreach \y in {0,5} {
+        \draw[blue!60!black, fill=white, line width=1pt] (\x, \y) circle (0.15);
+      }
+    \node[blue!60!black, font=\small\itshape, anchor=south] at (2.5, 5.1)
+      {Analysis element $e$ (Q4)};
+    \draw[decorate, decoration={brace, amplitude=7pt, mirror}, blue!60!black, line width=0.7pt]
+      (0, -0.18) -- (5, -0.18);
+    \node[blue!60!black, anchor=north, font=\small] at (2.5, -0.65)
+      {$N_{\mathrm{c}} = 5\times 5 = 25$ density cells};
+    \node[font=\scriptsize, orange!45!black] at (3.5, 2.8) {$\rho_{ek}$};
+    \node[anchor=west, font=\footnotesize, orange!50!black, align=left] at (6.0, 3.7)
+      {density cell $k$\\area $A_k = 1/N_{\mathrm{c}}$};
+    \draw[->, orange!55!black, line width=0.55pt, shorten >=2pt]
+      (6.0, 3.7) .. controls (5.0, 3.5) and (4.6, 3.2) .. (4.05, 3.0);
+    \node[anchor=west, font=\footnotesize, red!70!black, align=left] at (6.0, 1.5)
+      {midpoint integration\\point $\boldsymbol{\xi}_k$};
+    \draw[->, red!70!black, line width=0.55pt, shorten >=2pt]
+      (6.0, 1.5) .. controls (5.0, 1.8) and (4.3, 2.2) .. (3.6, 2.5);
+    \node[blue!60!black, font=\footnotesize, anchor=east] at (-0.4, -0.15)
+      {Q4 node};
+    \draw[->, blue!60!black, line width=0.5pt, shorten >=2pt]
+      (-0.4, -0.15) -- (-0.1, -0.04);
+  \end{tikzpicture}
+  \caption{Anatomy of one MTOP analysis element.}
+  \label{fig:mtop-cell}
+\end{figure}
 
 The number of free displacement degrees of freedom is $N_{\mathrm{dof}}^{\mathrm{cl}} \approx 2.41\times 10^{5}$ for the classical mesh and $N_{\mathrm{dof}}^{\mathrm{mtop}} \approx 9.88\times 10^{3}$ for the MTOP analysis mesh. The factor of about $24$ in mesh size translates into a much larger reduction in the cost of solving $\mathbf{K}\mathbf{u}=\mathbf{f}$, which dominates the computation in this 2D setting.
 
