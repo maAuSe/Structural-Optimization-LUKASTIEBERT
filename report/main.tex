@@ -238,6 +238,13 @@ The Young's modulus depends on the physical density $\rho$ through the SIMP law
 \end{equation}
 with penalization power $p=3$, $E_{0}=1$ and $E_{\min}=10^{-9}$. The volume fraction is fixed at $V^{*}=0.5$.
 
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.75\textwidth]{simp_interpolation.png}
+  \caption{SIMP interpolation between void and solid material for different penalization powers. The report uses $p=3$, which strongly penalizes intermediate physical densities; at the prescribed volume fraction $\rho=V^{*}=0.5$, the normalized stiffness is only $E/E_{0}=0.125$.}
+  \label{fig:simp-interpolation}
+\end{figure}
+
 \section{Optimization problem}
 
 Let $\boldsymbol{x}\in[0,1]^{N}$ denote the vector of design variables and $\boldsymbol{\rho}=\mathcal{F}(\boldsymbol{x})$ the corresponding physical densities, where $\mathcal{F}$ is the filter operator. The minimum-compliance problem reads
@@ -303,6 +310,13 @@ The cone kernel $H_{ij}=\max(0,r_{\min}-\lVert\mathbf{x}_{i}-\mathbf{x}_{j}\rVer
   \label{eq:sens-filter}
 \end{equation}
 A filter radius of $r_{\min}=24$ density cells is used both for the classical mesh and for the MTOP density mesh, so that the two formulations enforce the same minimum length scale.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.95\textwidth]{cone_kernel_radius_24.png}
+  \caption{Cone-kernel filter used in all experiments. The central cell receives weight $r_{\min}$, neighboring cells receive weights that decay linearly with distance, and cells at or beyond $r_{\min}=24$ density cells receive zero weight. The same stencil is applied on the $600\times 200$ density grid for both the classical and MTOP formulations.}
+  \label{fig:cone-kernel}
+\end{figure}
 
 \subsection{Optimality criteria update}
 
