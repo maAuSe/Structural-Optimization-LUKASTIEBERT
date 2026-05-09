@@ -4,14 +4,25 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{booktabs}
+\usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{adjustbox}
 \usepackage{subcaption}
 \usepackage{siunitx}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{longtable}
 \usepackage{hyperref}
 \usepackage{cleveref}
+\usepackage{placeins}
+\usepackage{etoolbox}
 \usepackage{tikz}
+
 \usetikzlibrary{decorations.pathreplacing}
+
+\pretocmd{\section}{\FloatBarrier}{}{}
+\pretocmd{\subsection}{\FloatBarrier}{}{}
+
 
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.8em}
@@ -21,7 +32,7 @@
 \newcommand{\reporttitle}{Multiresolution topology optimization}
 \newcommand{\reportsubtitle}{Computational-efficiency assessment for the half MBB beam with optimality criteria, the method of moving asymptotes, and Heaviside projection}
 \newcommand{\reportprogramme}{Mechanical Engineering -- Faculty of Engineering Science}
-\newcommand{\reportcourse}{Structural Optimization (H0T88A)}
+\newcommand{\reportcourse}{Structural Optimization (B-KUL-H0T88A)}
 \newcommand{\reportacademicyear}{Academic Year 2025--2026}
 \newcommand{\reportinstructor}{Instructor: Prof.\ M.\ Schevenels}
 
@@ -104,6 +115,13 @@ The comparison is carried out for the four assignment steps: optimality criteria
 
 The structure is the half MBB beam used in the Chapter~9 lecture code~\cite{andreassen2011top88}. A unit downward point load is applied to the upper-left corner. The left edge is restrained against horizontal motion (symmetry condition) and the lower-right corner is restrained against vertical motion (roller). Bilinear plane-stress quadrilateral elements with unit edge length, unit thickness, $E_0=1$ and Poisson's ratio $\nu=0.3$ are used for the analysis.
 
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{geometry.png}
+  \caption{Geometry, boundary conditions and loading of the half MBB beam.}
+  \label{fig:geometry}
+\end{figure}
+
 \subsection{Discretization}
 
 The classical baseline uses a finite element mesh of $600\times 200$ elements. The MTOP model uses a coarse finite element (analysis) mesh of $120\times 40$ elements with $5\times 5$ density cells per analysis element, giving the same $600\times 200$ density resolution as the classical model. The two discretizations are summarized in \cref{tab:discretization} and illustrated schematically in \cref{fig:discretization-grids}; the per-element $5\times 5$ density-cell layout that defines the MTOP enrichment is detailed in \cref{fig:mtop-cell}.
@@ -169,7 +187,7 @@ The classical baseline uses a finite element mesh of $600\times 200$ elements. T
 
 \begin{figure}[htbp]
   \centering
-  \begin{tikzpicture}[scale=1.4, every node/.style={font=\small}]
+  \begin{tikzpicture}[scale=1.12, every node/.style={font=\small}]
     \fill[blue!7] (0,0) rectangle (5,5);
     \fill[orange!22] (3,2) rectangle (4,3);
     \foreach \i in {0,1,2,3,4,5} {
@@ -362,7 +380,7 @@ The classical OC baseline of step~1 converges in $94$ iterations. The final comp
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{classical_oc_sensitivity_design.png}
+  \includegraphics[width=0.8\textwidth]{classical_oc_sensitivity_design.png}
   \caption{Optimized classical OC design with sensitivity filtering on a $600\times 200$ mesh, $V^{*}=0.5$, $p=3$ and $r_{\min}=24$ density cells. Black represents solid material, white represents void.}
   \label{fig:classical_oc_sensitivity_design}
 \end{figure}
@@ -387,7 +405,7 @@ The MTOP OC run reaches the same convergence tolerance in $95$ iterations, essen
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{mtop_oc_sensitivity_design.png}
+  \includegraphics[width=0.8\textwidth]{mtop_oc_sensitivity_design.png}
   \caption{Optimized MTOP OC design with a $120\times 40$ analysis mesh and $5\times 5$ density cells per analysis element.}
   \label{fig:mtop_oc_sensitivity_design}
 \end{figure}
@@ -419,7 +437,7 @@ The third experiment replaces the sensitivity filter by a density filter while k
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{classical_oc_density_design.png}
+  \includegraphics[width=0.8\textwidth]{classical_oc_density_design.png}
   \caption{Optimized classical OC design with density filtering on a $600\times 200$ mesh, $V^{*}=0.5$, $p=3$ and $r_{\min}=24$ density cells. The grey halo around each member width corresponds to the filter radius and reflects the minimum length scale enforced by the density filter.}
   \label{fig:classical_oc_density_design}
 \end{figure}
@@ -430,7 +448,7 @@ The MTOP run with density filtering shows the same oscillation pattern as the cl
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{mtop_oc_density_design.png}
+  \includegraphics[width=0.8\textwidth]{mtop_oc_density_design.png}
   \caption{Optimized MTOP OC design with density filtering, on a $120\times 40$ analysis mesh and $5\times 5$ density cells per analysis element.}
   \label{fig:mtop_oc_density_design}
 \end{figure}
@@ -466,14 +484,14 @@ Step~4 keeps the multiresolution analysis mesh of step~2 and the same filter rad
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{mtop_mma_sensitivity_design.png}
+  \includegraphics[width=0.8\textwidth]{mtop_mma_sensitivity_design.png}
   \caption{Optimized MTOP MMA design with sensitivity filtering.}
   \label{fig:mtop_mma_sensitivity_design}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{mtop_mma_density_design.png}
+  \includegraphics[width=0.8\textwidth]{mtop_mma_density_design.png}
   \caption{Optimized MTOP MMA design with density filtering.}
   \label{fig:mtop_mma_density_design}
 \end{figure}
@@ -629,5 +647,7 @@ Step~4 replaces OC with MMA inside the multiresolution scheme and investigates t
 
 \bibliographystyle{plain}
 \bibliography{references}
+
+\include{CodeOfConductAI}
 
 \end{document}

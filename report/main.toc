@@ -1,7 +1,7 @@
 \contentsline {section}{\numberline {1}Problem statement}{4}{section.1}%
 \contentsline {section}{\numberline {2}Structural model}{4}{section.2}%
 \contentsline {subsection}{\numberline {2.1}Geometry, boundary conditions and loading}{4}{subsection.2.1}%
-\contentsline {subsection}{\numberline {2.2}Discretization}{4}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.2}Discretization}{5}{subsection.2.2}%
 \contentsline {subsection}{\numberline {2.3}Material interpolation}{6}{subsection.2.3}%
 \contentsline {section}{\numberline {3}Optimization problem}{6}{section.3}%
 \contentsline {section}{\numberline {4}Solution technique}{6}{section.4}%
@@ -17,20 +17,21 @@
 \contentsline {subsection}{\numberline {6.2}Quantities recorded per iteration}{9}{subsection.6.2}%
 \contentsline {section}{\numberline {7}Results}{9}{section.7}%
 \contentsline {subsection}{\numberline {7.1}Classical OC baseline}{9}{subsection.7.1}%
-\contentsline {subsection}{\numberline {7.2}MTOP OC with sensitivity filtering}{10}{subsection.7.2}%
-\contentsline {subsection}{\numberline {7.3}Classical OC with density filtering}{10}{subsection.7.3}%
-\contentsline {subsection}{\numberline {7.4}MTOP OC with density filtering}{10}{subsection.7.4}%
-\contentsline {subsection}{\numberline {7.5}MTOP MMA: sensitivity and density filtering}{16}{subsection.7.5}%
-\contentsline {subsection}{\numberline {7.6}MTOP MMA with Heaviside projection}{16}{subsection.7.6}%
-\contentsline {subsection}{\numberline {7.7}Runtime comparison}{21}{subsection.7.7}%
-\contentsline {section}{\numberline {8}Discussion}{21}{section.8}%
-\contentsline {subsection}{\numberline {8.1}Convergence behavior}{21}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}Topological similarity of the two designs}{23}{subsection.8.2}%
-\contentsline {subsection}{\numberline {8.3}Origin of the speedup}{23}{subsection.8.3}%
-\contentsline {subsection}{\numberline {8.4}Native versus fine-mesh compliance}{24}{subsection.8.4}%
-\contentsline {subsection}{\numberline {8.5}Density filtering with vanilla optimality criteria}{24}{subsection.8.5}%
-\contentsline {subsection}{\numberline {8.6}Density filtering versus sensitivity filtering as a comparison setting}{24}{subsection.8.6}%
-\contentsline {subsection}{\numberline {8.7}MMA versus optimality criteria}{25}{subsection.8.7}%
-\contentsline {subsection}{\numberline {8.8}Effect of the Heaviside threshold $\eta $}{26}{subsection.8.8}%
-\contentsline {section}{\numberline {9}Use of generative AI}{26}{section.9}%
-\contentsline {section}{\numberline {10}Conclusion}{26}{section.10}%
+\contentsline {subsection}{\numberline {7.2}MTOP OC with sensitivity filtering}{12}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Classical OC with density filtering}{16}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}MTOP OC with density filtering}{16}{subsection.7.4}%
+\contentsline {subsection}{\numberline {7.5}MTOP MMA: sensitivity and density filtering}{20}{subsection.7.5}%
+\contentsline {subsection}{\numberline {7.6}MTOP MMA with Heaviside projection}{20}{subsection.7.6}%
+\contentsline {subsection}{\numberline {7.7}Runtime comparison}{24}{subsection.7.7}%
+\contentsline {section}{\numberline {8}Discussion}{24}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Convergence behavior}{24}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Topological similarity of the two designs}{24}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}Origin of the speedup}{25}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}Native versus fine-mesh compliance}{26}{subsection.8.4}%
+\contentsline {subsection}{\numberline {8.5}Density filtering with vanilla optimality criteria}{26}{subsection.8.5}%
+\contentsline {subsection}{\numberline {8.6}Density filtering versus sensitivity filtering as a comparison setting}{26}{subsection.8.6}%
+\contentsline {subsection}{\numberline {8.7}MMA versus optimality criteria}{27}{subsection.8.7}%
+\contentsline {subsection}{\numberline {8.8}Effect of the Heaviside threshold $\eta $}{27}{subsection.8.8}%
+\contentsline {section}{\numberline {9}Use of generative AI}{28}{section.9}%
+\contentsline {section}{\numberline {10}Conclusion}{28}{section.10}%
+\contentsline {section}{Code of Conduct}{30}{section*.28}%
