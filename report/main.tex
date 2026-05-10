@@ -354,7 +354,14 @@ All runs use the standard design-change criterion $\max_{i}|\Delta x_{i}|<\varep
 
 \subsection{MMA and Heaviside projection}\label{sec:mma}
 
-In step~4 the OC update is replaced by the method of moving asymptotes (MMA) of Svanberg~\cite{svanberg1987mma}, which approximates the objective and constraint by separable convex functions of moving-asymptote-shifted variables and solves the resulting subproblem by an interior-point method. The implementation \texttt{mma.m} that ships with the lecture toolbox is used unmodified. The objective passed to MMA is $f_{0}=C/100$ and the volume constraint is $f_{1}=v/V^{*}-1\le 0$; the corresponding gradients are $\partial C/\partial x/100$ and $\partial v/\partial x/V^{*}$. The design variables remain in $[0,1]$ as before.
+In step~4 the OC update is replaced by the method of moving asymptotes (MMA) of Svanberg~\cite{svanberg1987mma}, which approximates the objective and constraint by separable convex functions of moving-asymptote-shifted variables and solves the resulting subproblem by an interior-point method. The implementation \texttt{mma.m} that ships with the lecture toolbox is used unmodified. The objective passed to MMA is $f_{0}=C/100$ and the volume constraint is $f_{1}=v/V^{*}-1\le 0$; the corresponding gradients are $\partial C/\partial x/100$ and $\partial v/\partial x/V^{*}$. The design variables remain in $[0,1]$ as before. The geometric idea is illustrated in \cref{fig:mma-asymptotes}: at each iterate $x_{k}$ the algorithm builds a separable convex approximation $\tilde{f}_{k}(x)$ that matches $f$ and $\nabla f$ at $x_{k}$ and diverges to $+\infty$ at the lower and upper asymptotes $L_{k}$ and $U_{k}$; the next iterate $x_{k+1}$ is the minimizer of $\tilde{f}_{k}$ over the trust region $(L_{k},U_{k})$, and the asymptotes are then adapted around $x_{k+1}$ for the following subproblem.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.78\textwidth]{mma_asymptotes.png}
+  \caption{One MMA outer iteration. At the current iterate $x_{k}$ the true objective $f(x)$ is replaced by a separable convex approximation $\tilde{f}_{k}(x)$ (blue) that matches $f$ and its gradient at $x_{k}$ and diverges at the asymptotes $L_{k}$ and $U_{k}$. The next iterate $x_{k+1}$ minimizes $\tilde{f}_{k}$ over $(L_{k},U_{k})$. The asymptotes are then re-centered around $x_{k+1}$: they contract when the iterate oscillates and expand when it progresses monotonically, which gives MMA its adaptive trust-region behavior.}
+  \label{fig:mma-asymptotes}
+\end{figure}
 
 For the Heaviside-projection variant, density filtering is followed by a smooth projection of Wang, Lazarov and Sigmund towards $\{0,1\}$,
 \begin{equation}

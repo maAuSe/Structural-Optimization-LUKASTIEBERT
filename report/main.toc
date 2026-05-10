@@ -11,27 +11,27 @@
 \contentsline {subsection}{\numberline {4.4}Optimality criteria update}{8}{subsection.4.4}%
 \contentsline {subsection}{\numberline {4.5}Convergence criteria}{8}{subsection.4.5}%
 \contentsline {subsection}{\numberline {4.6}MMA and Heaviside projection}{8}{subsection.4.6}%
-\contentsline {section}{\numberline {5}Sensitivity verification}{9}{section.5}%
+\contentsline {section}{\numberline {5}Sensitivity verification}{10}{section.5}%
 \contentsline {section}{\numberline {6}Numerical experiments}{10}{section.6}%
 \contentsline {subsection}{\numberline {6.1}Experiment matrix}{10}{subsection.6.1}%
 \contentsline {subsection}{\numberline {6.2}Quantities recorded per iteration}{10}{subsection.6.2}%
-\contentsline {section}{\numberline {7}Results}{10}{section.7}%
-\contentsline {subsection}{\numberline {7.1}Classical OC baseline}{10}{subsection.7.1}%
+\contentsline {section}{\numberline {7}Results}{11}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Classical OC baseline}{11}{subsection.7.1}%
 \contentsline {subsection}{\numberline {7.2}MTOP OC with sensitivity filtering}{12}{subsection.7.2}%
-\contentsline {subsection}{\numberline {7.3}Classical OC with density filtering}{14}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.3}Classical OC with density filtering}{12}{subsection.7.3}%
 \contentsline {subsection}{\numberline {7.4}MTOP OC with density filtering}{14}{subsection.7.4}%
-\contentsline {subsection}{\numberline {7.5}MTOP MMA: sensitivity and density filtering}{14}{subsection.7.5}%
+\contentsline {subsection}{\numberline {7.5}MTOP MMA: sensitivity and density filtering}{15}{subsection.7.5}%
 \contentsline {subsection}{\numberline {7.6}MTOP MMA with Heaviside projection}{17}{subsection.7.6}%
-\contentsline {subsection}{\numberline {7.7}Runtime comparison}{17}{subsection.7.7}%
+\contentsline {subsection}{\numberline {7.7}Runtime comparison}{19}{subsection.7.7}%
 \contentsline {section}{\numberline {8}Discussion}{19}{section.8}%
 \contentsline {subsection}{\numberline {8.1}Convergence behavior}{19}{subsection.8.1}%
 \contentsline {subsection}{\numberline {8.2}Topological similarity of the two designs}{20}{subsection.8.2}%
 \contentsline {subsection}{\numberline {8.3}Origin of the speedup}{20}{subsection.8.3}%
 \contentsline {subsection}{\numberline {8.4}Native versus fine-mesh compliance}{21}{subsection.8.4}%
 \contentsline {subsection}{\numberline {8.5}Density filtering with vanilla optimality criteria}{21}{subsection.8.5}%
-\contentsline {subsection}{\numberline {8.6}Density filtering versus sensitivity filtering as a comparison setting}{21}{subsection.8.6}%
+\contentsline {subsection}{\numberline {8.6}Density filtering versus sensitivity filtering as a comparison setting}{22}{subsection.8.6}%
 \contentsline {subsection}{\numberline {8.7}MMA versus optimality criteria}{22}{subsection.8.7}%
-\contentsline {subsection}{\numberline {8.8}Effect of the Heaviside threshold $\eta $}{22}{subsection.8.8}%
+\contentsline {subsection}{\numberline {8.8}Effect of the Heaviside threshold $\eta $}{23}{subsection.8.8}%
 \contentsline {section}{\numberline {9}Use of generative AI}{23}{section.9}%
 \contentsline {section}{\numberline {10}Conclusion}{23}{section.10}%
-\contentsline {section}{Code of Conduct}{25}{section*.30}%
+\contentsline {section}{Code of Conduct}{25}{section*.31}%
