@@ -2,11 +2,11 @@ function report = verify_sensitivities(cfg, options)
 %VERIFY_SENSITIVITIES Finite-difference verification of compliance and volume sensitivities.
 %
 % This routine compares the analytical sensitivities used by the assignment
-% codes with central finite-difference approximations. The verification is
-% performed on a small instance of the MBB problem because the FD evaluation
-% requires repeated FE solves. The same SIMP, BC and integration conventions
-% are used as in run_classical_oc_sensitivity and run_mtop_oc_sensitivity,
-% so the test exercises the actual derivatives that drive the optimization.
+% codes with component-wise, directional and Taylor finite-difference checks.
+% The verification is performed on a small instance of the MBB problem because
+% the FD evaluation requires repeated FE solves. The same SIMP, BC and
+% integration conventions are used as in the optimization runners, so the test
+% exercises the actual derivatives that drive the optimization.
 %
 % A successful test produces a relative error below ~1e-5 for compliance
 % and below ~1e-12 for the (linear) volume sensitivity.
@@ -31,6 +31,9 @@ if ~isfield(options, 'E0'), options.E0 = 1; end
 if ~isfield(options, 'Emin'), options.Emin = 1e-9; end
 if ~isfield(options, 'nu'), options.nu = 0.3; end
 if ~isfield(options, 'seed'), options.seed = 0; end
+if ~isfield(options, 'hStudy'), options.hStudy = logspace(-2, -12, 11); end
+if ~isfield(options, 'numComponentSamples'), options.numComponentSamples = 6; end
+if ~isfield(options, 'exportFigures'), options.exportFigures = true; end
 
 reportClassical = check_classical(options);
 reportMtop = check_mtop(options);
@@ -44,6 +47,11 @@ report.heaviside = reportHeaviside;
 print_report(report);
 
 if isfield(cfg, 'paths') && isfield(cfg.paths, 'results')
+  if options.exportFigures
+    export_sensitivity_verification_figures(cfg.paths.figures, report);
+    write_sensitivity_verification_tables(cfg.paths.results, report);
+  end
+
   outputPath = fullfile(cfg.paths.results, 'sensitivity_verification.mat');
   save(outputPath, 'report', '-v7.3');
   fprintf('Saved sensitivity verification report:\n  %s\n', outputPath);
@@ -93,6 +101,8 @@ dcAna = dcdrho(sampleIdx);
 dvAna = dvdrho(sampleIdx);
 
 out = error_metrics('classical', c0, sampleIdx, dcAna, dcFD, dvAna, dvFD);
+out.fd = fd_strategy_studies(@(rho) classical_objective(rho, KE, edofMat, iK, jK, ...
+  F, freedofs, penal, E0, Emin), xPhys, dcdrho, options, sampleIdx);
 
 end
 
@@ -144,6 +154,9 @@ dcAna = dcdrho(sampleIdx);
 dvAna = dvdrho(sampleIdx);
 
 out = error_metrics('mtop', c0, sampleIdx, dcAna, dcFD, dvAna, dvFD);
+out.fd = fd_strategy_studies(@(rho) mtop_objective(rho, I_cells, edofMat, iK, jK, ...
+  F, freedofs, densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin), ...
+  xPhys, dcdrho, options, sampleIdx);
 
 end
 
@@ -216,6 +229,98 @@ out.dcAnalytical = dcAna(:);
 out.dcFiniteDiff = dcFD;
 out.dcMaxAbsError = max(abs(dcAna(:) - dcFD));
 out.dcMaxRelError = max(abs(dcAna(:) - dcFD)) / max(max(abs(dcFD)), eps);
+out.fd = fd_strategy_studies(@(x) heaviside_objective(x, h, Hs, I_cells, edofMat, ...
+  iK, jK, F, freedofs, densityPerX, densityPerY, feNelx, feNely, penal, E0, ...
+  Emin, beta, eta), x0, dcdx, options, sampleIdx);
+
+end
+
+
+function fd = fd_strategy_studies(evalFcn, xBase, analyticalGradient, options, preferredIdx)
+%FD_STRATEGY_STUDIES Component-wise, directional and Taylor FD checks.
+
+h = options.hStudy(:)';
+fBase = evalFcn(xBase);
+grad = analyticalGradient(:);
+
+numComponentSamples = min(options.numComponentSamples, numel(preferredIdx));
+componentIdx = preferredIdx(1:numComponentSamples);
+nVar = numel(componentIdx);
+nH = numel(h);
+
+fdForward = zeros(nVar, nH);
+fdCentral = zeros(nVar, nH);
+
+for iVar = 1:nVar
+  idx = componentIdx(iVar);
+  for iH = 1:nH
+    step = h(iH);
+    xPlus = xBase;
+    xPlus(idx) = xPlus(idx) + step;
+    fPlus = evalFcn(xPlus);
+
+    xMinus = xBase;
+    xMinus(idx) = xMinus(idx) - step;
+    fMinus = evalFcn(xMinus);
+
+    fdForward(iVar, iH) = (fPlus - fBase) / step;
+    fdCentral(iVar, iH) = (fPlus - fMinus) / (2 * step);
+  end
+end
+
+anaComponent = grad(componentIdx);
+componentAbsForward = abs(fdForward - anaComponent);
+componentAbsCentral = abs(fdCentral - anaComponent);
+componentScale = max(abs(anaComponent), eps);
+
+rng(options.seed + 101);
+direction = randn(size(xBase));
+direction = direction / max(abs(direction(:)));
+directionalAnalytical = sum(grad .* direction(:));
+directionalFd = zeros(1, nH);
+taylorRemainder = zeros(1, nH);
+
+for iH = 1:nH
+  step = h(iH);
+  xPerturbed = xBase + step * direction;
+  fPerturbed = evalFcn(xPerturbed);
+  directionalFd(iH) = (fPerturbed - fBase) / step;
+  taylorRemainder(iH) = abs(fPerturbed - fBase - step * directionalAnalytical);
+end
+
+directionalAbs = abs(directionalFd - directionalAnalytical);
+directionalScale = max(abs(directionalAnalytical), eps);
+
+slopeMask = h <= 1e-3 & h >= 1e-5 & taylorRemainder > 0;
+if nnz(slopeMask) >= 2
+  slopeFit = polyfit(log10(h(slopeMask)), log10(taylorRemainder(slopeMask)), 1);
+  taylorSlope = slopeFit(1);
+else
+  taylorSlope = NaN;
+end
+
+fd = struct();
+fd.h = h;
+fd.baseCompliance = fBase;
+fd.component = struct();
+fd.component.sampleIdx = componentIdx(:);
+fd.component.analytical = anaComponent(:);
+fd.component.forward = fdForward;
+fd.component.central = fdCentral;
+fd.component.absErrorForward = componentAbsForward;
+fd.component.absErrorCentral = componentAbsCentral;
+fd.component.relErrorForward = componentAbsForward ./ componentScale;
+fd.component.relErrorCentral = componentAbsCentral ./ componentScale;
+fd.component.maxRelForward = max(fd.component.relErrorForward, [], 1);
+fd.component.maxRelCentral = max(fd.component.relErrorCentral, [], 1);
+fd.directional = struct();
+fd.directional.analytical = directionalAnalytical;
+fd.directional.forward = directionalFd;
+fd.directional.absError = directionalAbs;
+fd.directional.relError = directionalAbs / directionalScale;
+fd.taylor = struct();
+fd.taylor.remainder = taylorRemainder;
+fd.taylor.slope = taylorSlope;
 
 end
 
@@ -410,6 +515,149 @@ out.dcMaxRelError = max(abs(dcAna - dcFD)) / max(cScale, eps);
 out.dvAnalytical = dvAna;
 out.dvFiniteDiff = dvFD;
 out.dvMaxAbsError = max(abs(dvAna - dvFD));
+
+end
+
+
+function export_sensitivity_verification_figures(figuresDir, report)
+
+if ~isfolder(figuresDir)
+  mkdir(figuresDir);
+end
+
+checks = {report.classical, report.mtop, report.heaviside};
+labels = {'Classical SIMP', 'MTOP per-cell', 'Full chain'};
+colors = [
+  0.24 0.45 0.70
+  0.12 0.62 0.56
+  0.79 0.29 0.23
+];
+
+fig = figure('Visible', 'off', 'Color', 'w', 'Units', 'centimeters', ...
+  'Position', [2 2 18.4 6.7]);
+layout = tiledlayout(fig, 1, 3, 'TileSpacing', 'compact', 'Padding', 'compact');
+
+ax = nexttile(layout, 1);
+hold(ax, 'on');
+grid(ax, 'on');
+box(ax, 'off');
+for k = 1:numel(checks)
+  fd = checks{k}.fd;
+  loglog(ax, fd.h, fd.component.maxRelForward, '-o', 'LineWidth', 1.25, ...
+    'MarkerSize', 3.6, 'Color', colors(k, :), 'DisplayName', labels{k});
+end
+xlabel(ax, 'Step size h');
+ylabel(ax, 'max relative error');
+title(ax, 'Component-wise check', 'FontWeight', 'bold');
+set(ax, 'FontName', 'Arial', 'FontSize', 7.8, 'LineWidth', 0.8, ...
+  'TickDir', 'out', 'XScale', 'log', 'YScale', 'log');
+legend(ax, 'Location', 'southwest', 'Box', 'off', 'FontSize', 7.0);
+
+ax = nexttile(layout, 2);
+hold(ax, 'on');
+grid(ax, 'on');
+box(ax, 'off');
+for k = 1:numel(checks)
+  fd = checks{k}.fd;
+  loglog(ax, fd.h, fd.directional.relError, '-o', 'LineWidth', 1.25, ...
+    'MarkerSize', 3.6, 'Color', colors(k, :), 'DisplayName', labels{k});
+end
+xlabel(ax, 'Step size h');
+ylabel(ax, 'relative error');
+title(ax, 'Directional check', 'FontWeight', 'bold');
+set(ax, 'FontName', 'Arial', 'FontSize', 7.8, 'LineWidth', 0.8, ...
+  'TickDir', 'out', 'XScale', 'log', 'YScale', 'log');
+
+ax = nexttile(layout, 3);
+hold(ax, 'on');
+grid(ax, 'on');
+box(ax, 'off');
+for k = 1:numel(checks)
+  fd = checks{k}.fd;
+  loglog(ax, fd.h, fd.taylor.remainder, '-o', 'LineWidth', 1.25, ...
+    'MarkerSize', 3.6, 'Color', colors(k, :), 'DisplayName', labels{k});
+end
+refFd = checks{end}.fd;
+refIdx = min(3, numel(refFd.h));
+refScale = refFd.taylor.remainder(refIdx) / refFd.h(refIdx)^2;
+loglog(ax, refFd.h, refScale * refFd.h.^2, 'k--', 'LineWidth', 1.0, ...
+  'DisplayName', 'O(h^2)');
+xlabel(ax, 'Step size h');
+ylabel(ax, 'Taylor remainder');
+title(ax, 'Taylor test', 'FontWeight', 'bold');
+set(ax, 'FontName', 'Arial', 'FontSize', 7.8, 'LineWidth', 0.8, ...
+  'TickDir', 'out', 'XScale', 'log', 'YScale', 'log');
+
+exportgraphics(fig, fullfile(figuresDir, 'sensitivity_verification_fd_strategies.png'), ...
+  'Resolution', 300);
+exportgraphics(fig, fullfile(figuresDir, 'sensitivity_verification_fd_strategies.pdf'), ...
+  'ContentType', 'vector');
+close(fig);
+
+end
+
+
+function write_sensitivity_verification_tables(resultsDir, report)
+
+if ~isfolder(resultsDir)
+  mkdir(resultsDir);
+end
+
+checks = {report.classical, report.mtop, report.heaviside};
+labels = {'Classical SIMP'; 'MTOP per-cell'; 'Full chain'};
+targetH = 1e-6;
+
+componentCheck = {};
+componentSample = [];
+componentH = [];
+analytical = [];
+fdForward = [];
+absError = [];
+relError = [];
+
+methodCheck = {};
+componentBestH = [];
+componentBestRel = [];
+directionBestH = [];
+directionBestRel = [];
+taylorSlope = [];
+
+for k = 1:numel(checks)
+  fd = checks{k}.fd;
+  [~, hIdx] = min(abs(log10(fd.h) - log10(targetH)));
+  nSamples = numel(fd.component.sampleIdx);
+
+  for i = 1:nSamples
+    componentCheck{end+1, 1} = labels{k}; %#ok<AGROW>
+    componentSample(end+1, 1) = fd.component.sampleIdx(i); %#ok<AGROW>
+    componentH(end+1, 1) = fd.h(hIdx); %#ok<AGROW>
+    analytical(end+1, 1) = fd.component.analytical(i); %#ok<AGROW>
+    fdForward(end+1, 1) = fd.component.forward(i, hIdx); %#ok<AGROW>
+    absError(end+1, 1) = fd.component.absErrorForward(i, hIdx); %#ok<AGROW>
+    relError(end+1, 1) = fd.component.relErrorForward(i, hIdx); %#ok<AGROW>
+  end
+
+  [bestComponentRel, bestComponentIdx] = min(fd.component.maxRelForward);
+  [bestDirectionalRel, bestDirectionalIdx] = min(fd.directional.relError);
+
+  methodCheck{end+1, 1} = labels{k}; %#ok<AGROW>
+  componentBestH(end+1, 1) = fd.h(bestComponentIdx); %#ok<AGROW>
+  componentBestRel(end+1, 1) = bestComponentRel; %#ok<AGROW>
+  directionBestH(end+1, 1) = fd.h(bestDirectionalIdx); %#ok<AGROW>
+  directionBestRel(end+1, 1) = bestDirectionalRel; %#ok<AGROW>
+  taylorSlope(end+1, 1) = fd.taylor.slope; %#ok<AGROW>
+end
+
+componentTable = table(componentCheck, componentSample, componentH, analytical, ...
+  fdForward, absError, relError, 'VariableNames', {'check', 'sample_index', ...
+  'h', 'analytical', 'finite_difference', 'abs_error', 'rel_error'});
+writetable(componentTable, fullfile(resultsDir, 'sensitivity_component_table.csv'));
+
+methodTable = table(methodCheck, componentBestH, componentBestRel, ...
+  directionBestH, directionBestRel, taylorSlope, 'VariableNames', {'check', ...
+  'best_component_h', 'best_component_rel_error', 'best_directional_h', ...
+  'best_directional_rel_error', 'taylor_slope'});
+writetable(methodTable, fullfile(resultsDir, 'sensitivity_method_summary.csv'));
 
 end
 

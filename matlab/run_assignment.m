@@ -60,6 +60,22 @@ fprintf('  Fine-mesh compliance:    %.6f\n', mtopResult.fineMeshCompliance);
 fprintf('  Volume fraction:         %.6f\n', mtopResult.finalVolumeFraction);
 fprintf('  Speedup vs classical:    %.2f\n', mtopResult.speedupAgainstClassical);
 
+coarsePath = fullfile(cfg.paths.results, 'classical_oc_coarse_sensitivity.mat');
+if isfile(coarsePath)
+  data = load(coarsePath, 'result');
+  coarseResult = data.result;
+  fprintf('Coarse-coarse sensitivity result found and reused: %s\n', coarsePath);
+else
+  coarseResult = run_classical_oc_coarse_sensitivity(cfg);
+end
+
+fprintf('Coarse-coarse sensitivity baseline completed.\n');
+fprintf('  Iterations:              %i\n', coarseResult.iterations);
+fprintf('  Elapsed time [s]:        %.2f\n', coarseResult.elapsedSeconds);
+fprintf('  Native coarse compliance: %.6f\n', coarseResult.finalCompliance);
+fprintf('  Fine-mesh compliance:    %.6f\n', coarseResult.fineMeshCompliance);
+fprintf('  Grayness index:          %.6f\n', coarseResult.grayness);
+
 classicalDensityPath = fullfile(cfg.paths.results, 'classical_oc_density.mat');
 if isfile(classicalDensityPath)
   data = load(classicalDensityPath, 'result');
@@ -121,3 +137,7 @@ fprintf('Sensitivity verification:\n');
 fprintf('  Classical (dC/drho)        max rel FD error: %.3e\n', verifyReport.classical.dcMaxRelError);
 fprintf('  MTOP      (dC/drho)        max rel FD error: %.3e\n', verifyReport.mtop.dcMaxRelError);
 fprintf('  Heaviside (dC/dx full chain) max rel FD error: %.3e\n', verifyReport.heaviside.dcMaxRelError);
+
+export_runtime_summary_chart();
+export_phase_breakdown_chart();
+export_density_sensitivity_figures(cfg);

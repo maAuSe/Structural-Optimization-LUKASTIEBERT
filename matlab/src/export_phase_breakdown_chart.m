@@ -10,19 +10,21 @@ end
 caseNames = {
   'Classical OC sens.'
   'MTOP OC sens.'
+  'MTOP MMA sens.'
   'Classical OC dens.'
   'MTOP OC dens.'
-  'MTOP MMA sens.'
+  'MTOP MMA dens.'
   'MTOP MMA Heav. \eta=0.5'
 };
 
-totalTime = [263.23; 12.28; 692.91; 136.57; 187.28; 370.87];
+totalTime = [263.23; 12.28; 187.28; 692.91; 136.57; 253.89; 370.87];
 phaseTime = [
   43.03   214.77  1.02   0.91
   4.33    5.35    1.01   0.88
+  10.95   13.45   2.79   158.01
   102.05  498.31  7.32   76.88
   12.16   16.03   9.17   96.84
-  10.95   13.45   2.79   158.01
+  19.37   24.27   14.53  192.14
   29.13   36.72   23.13  276.62
 ];
 residualTime = max(totalTime - sum(phaseTime, 2), 0);
@@ -39,7 +41,7 @@ phaseColors = [
 ];
 
 fig = figure('Visible', 'off', 'Color', 'w', 'Units', 'centimeters', ...
-  'Position', [2 2 18.2 12.4]);
+  'Position', [2 2 18.2 13.3]);
 layout = tiledlayout(fig, 1, 1, 'TileSpacing', 'compact', ...
   'Padding', 'compact');
 ax = nexttile(layout);
@@ -97,7 +99,7 @@ text(ax, 112, 1.54, '40x', 'FontName', 'Arial', 'FontSize', 8.1, ...
 text(ax, 410, 5.52, 'MMA is optimizer-dominated', ...
   'FontName', 'Arial', 'FontSize', 8.3, 'FontWeight', 'bold', ...
   'Color', [0.50 0.13 0.10], 'BackgroundColor', 'w', 'Margin', 2.5);
-plot(ax, [158.01 276.62], [5 6], '-', 'Color', [0.50 0.13 0.10], ...
+plot(ax, [158.01 276.62], [3 7], '-', 'Color', [0.50 0.13 0.10], ...
   'LineWidth', 1.2, 'HandleVisibility', 'off');
 
 ylim(ax, [0.35 numel(caseNames) + 0.65]);

@@ -1,0 +1,4 @@
+check,best_component_h,best_component_rel_error,best_directional_h,best_directional_rel_error,taylor_slope
+Classical SIMP,1e-06,6.91033603795155e-06,1e-07,3.34626319583008e-06,2.00015803314733
+MTOP per-cell,1e-05,2.05728184945968e-05,1e-08,0.000189577653339589,1.99999205234111
+Full chain,1e-05,1.9563122289003e-06,1e-06,7.88026966681295e-06,1.99933088683354

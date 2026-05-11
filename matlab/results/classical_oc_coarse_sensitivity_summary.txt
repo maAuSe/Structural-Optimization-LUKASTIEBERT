@@ -1,0 +1,20 @@
+Classical OC coarse-coarse sensitivity baseline
+Coarse mesh: 120 x 40 elements
+Fine reanalysis mesh: 600 x 200 elements
+Volume fraction target: 0.500000
+Penalization power: 3.000000
+Sensitivity filter radius: 4.800000 coarse elements
+Move limit: 0.200000
+Change tolerance: 0.010000
+Converged: 1
+Iterations: 93
+Elapsed time [s]: 6.732489
+Native coarse compliance: 219.107832659350
+Fine-mesh compliance of upsampled coarse design: 226.036369140047
+Final volume fraction: 0.500001749309
+Final maximum design change: 0.009982095097
+Grayness index mean(4*rho*(1-rho)): 0.264511122576
+Cumulative FE assembly time [s]: 1.154373
+Cumulative FE solve time [s]: 5.044912
+Cumulative filter time [s]: 0.027344
+Cumulative optimizer time [s]: 0.148691
