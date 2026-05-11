@@ -76,7 +76,8 @@ Our current framing separates the two costs: MTOP optimization time for speedup,
 ### FEEDBACK Prof. Schevenels
 
 1) Sensitivity verification (Section 5).
-Add plots & figures. Look at additional PDF with 3 different approaches. Compute sensitivities for a couple of design variables, put them in a comprehensive table.
+Add plots & figures. Look at additional PDF with finite-difference approach. Compute sensitivities for a couple of design variables, put them in a comprehensive table. Choose the best method of the 3 presented in the PDF. Or use all methods and compare results.
+FILE: "Sensitivity-verification-with-finite-differences.pdf"
 
 2) Experiment matrix (Section 6.1).
 Change the name to e.g. "Experimental setup".
@@ -85,7 +86,7 @@ Change the name to e.g. "Experimental setup".
 Compliance plateau convergence criterion instead of classical stop criterion. Add figures of sensitivities for additional proof.
 
 4) Runtime comparison (Section 7.7).
-Sort cases differently. Put "sensitivity filtering", "density filtering" and "Heaviside projection" together (per 3).
+Sort cases differently. Put "sensitivity filtering", "density filtering" and "Heaviside projection" together (per 3). Sensitivity filtering and density filtering are actually different problems.
 Native compliance vs. fine-mesh compliance comparison. Fine-mesh compliance should be used as the main comparison value.
 
 5) Coarse-coarse compliance.
