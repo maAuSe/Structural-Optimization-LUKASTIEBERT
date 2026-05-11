@@ -33,5 +33,4 @@
 \contentsline {subsection}{\numberline {8.7}MMA versus optimality criteria}{22}{subsection.8.7}%
 \contentsline {subsection}{\numberline {8.8}Effect of the Heaviside threshold $\eta $}{23}{subsection.8.8}%
 \contentsline {subsection}{\numberline {8.9}Length-scale control: filter radius and density-cell count}{24}{subsection.8.9}%
-\contentsline {section}{\numberline {9}Use of generative AI}{24}{section.9}%
-\contentsline {section}{\numberline {10}Conclusion}{25}{section.10}%
+\contentsline {section}{\numberline {9}Conclusion}{24}{section.9}%

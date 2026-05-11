@@ -1,16 +1,5 @@
-# Questions for Prof. Schevenels - meeting on 11 May 2026
+# Questions for Prof. Schevenels
 
-## Context
-
-The assignment guidelines state that every group is expected to request guidance at least once *before* including the results in the report. The report deadline is 15 May 2026 and the presentation is on 22 May 2026, so this meeting is our last opportunity to align on the methodological choices that shape the main conclusions of the report.
-
-For reference, the current state of our work is:
-
-- All four assignment steps have been implemented and produce reproducible results (see `matlab/run_assignment.m`, `matlab/results/*.mat`, and the figures in `matlab/figures/`).
-- Sensitivity verification against central finite differences passes with maximum relative errors of $5.7\times 10^{-7}$ (classical SIMP), $1.1\times 10^{-5}$ (MTOP per-cell), and $5.4\times 10^{-6}$ (full filter-Heaviside-MTOP chain).
-- The report draft (`report/main.pdf`) is structured around a $9$-run experiment matrix. The numbers cited below come directly from the result summary files in `matlab/results/`.
-
----
 
 ## Question 1 - Convergence handling for the density-filtered runs
 
@@ -41,7 +30,7 @@ The options we see are:
 1. **Keep the compliance-plateau criterion**, document it explicitly, and report the residual design-variable oscillation as part of the observed behavior of the density-filtered formulation.
 2. **Use a different convergence measure**, for example the change in physical density $\rho=\mathcal{F}(x)$ rather than the raw design-variable change. This may better reflect the quantity entering the FE analysis, but it would differ from the lecture stopping criterion.
 3. **Apply an OC-specific remedy**, such as a smaller OC move limit ($m=0.05$ instead of $m=0.2$) or explicit damping in the OC update. This would likely damp the OC oscillation, but it changes the lecture form of OC and does not directly address the MMA density-filtered run.
-4. **Use continuation or stronger regularization**, for example ramping the SIMP penalty from $p=1$ to $p=3$. This is more standard than ad hoc damping, but it changes the experiment matrix and would require rerunning the affected cases.
+4. **Add continuation or stronger regularization**, for example introducing a new SIMP-penalty continuation that starts at $p=1$ and ramps to the current assignment value $p=3$. This is more standard than ad hoc damping, but it changes the experiment matrix and would require rerunning the affected cases.
 
 Our current preference is option 1, because it keeps the comparison between formulations clean and treats the residual oscillation as a convergence feature that should be reported rather than hidden. We would like to know whether you agree, or whether you would expect one of the remedies above before the report is submitted.
 
@@ -76,20 +65,9 @@ Our current draft uses both values, but uses the fine-mesh value for direct layo
 
 Our current framing separates the two costs: MTOP optimization time for speedup, and fine-mesh re-analysis as an optional verification step. We would like to confirm whether that distinction is acceptable.
 
-**2(c) - If we add one extra sweep, which one would be most useful?** The Nguyen et al. paper does not report timings, so the speedup analysis is the part of our report that goes beyond reproducing the assignment steps. We have time for at most one extra sweep before the deadline. The options we see are:
-
-- **Density cells per analysis element**, e.g. $N_c \in \{3\times 3, 5\times 5, 7\times 7\}$, to test the accuracy/speed trade-off directly and check whether the native/fine compliance gap behaves as expected.
-- **Larger density mesh**, e.g. $1200\times 400$, to test whether the speedup grows with problem size as the sparse-solve scaling argument suggests.
-- **Different filter radius**, to isolate how much of the runtime is controlled by the per-density-cell filtering operations.
-
-Our default choice would be the $N_c$ sweep, because it directly supports the cost/accuracy discussion in 2(a). Would you agree, or would a larger-mesh timing comparison be more informative for the assignment?
 
 ---
 
 ## Smaller follow-ups (only if there is time)
-
-1. **Group composition.** The assignment specifies "groups of three students" but our group is two (Lukas Campaert and Tiebert Lefebure). We have been working as a pair from the start; is there any issue with submitting as a group of two?
-
-2. **GenAI transparency.** Section 9 of our report describes how we used GenAI in three roles: repository scaffolding, translation of the lecture examples into production runners, and drafting of the multiresolution stiffness assembly plus verification routine. Is this level of detail sufficient, or would you prefer a more itemized statement per chapter, figure, or code component?
 
 3. **Presentation focus.** The presentation is 10 minutes plus 10 minutes of questions. Given the audience (other students who took the course), we plan to focus on the per-phase wall-clock breakdown and the Heaviside results, and treat the convergence issue from question 1 as one short slide. Does that match what you would expect?
