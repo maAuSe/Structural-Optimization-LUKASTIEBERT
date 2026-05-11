@@ -71,3 +71,22 @@ Our current framing separates the two costs: MTOP optimization time for speedup,
 ## Smaller follow-ups (only if there is time)
 
 3. **Presentation focus.** The presentation is 10 minutes plus 10 minutes of questions. Given the audience (other students who took the course), we plan to focus on the per-phase wall-clock breakdown and the Heaviside results, and treat the convergence issue from question 1 as one short slide. Does that match what you would expect?
+
+
+### FEEDBACK Prof. Schevenels
+
+1) Sensitivity verification (Section 5).
+Add plots & figures. Look at additional PDF with 3 different approaches. Compute sensitivities for a couple of design variables, put them in a comprehensive table.
+
+2) Experiment matrix (Section 6.1).
+Change the name to e.g. "Experimental setup".
+
+3) Density filtering results (Section 7.3 & 7.4).
+Compliance plateau convergence criterion instead of classical stop criterion. Add figures of sensitivities for additional proof.
+
+4) Runtime comparison (Section 7.7).
+Sort cases differently. Put "sensitivity filtering", "density filtering" and "Heaviside projection" together (per 3).
+Native compliance vs. fine-mesh compliance comparison. Fine-mesh compliance should be used as the main comparison value.
+
+5) Coarse-coarse compliance.
+New analysis mesh (coarse). Compare compliance values. Is MTOP really that necessary? Coarser mesh with a grayer design is often sufficient.
