@@ -534,7 +534,7 @@ colors = [
 ];
 
 fig = figure('Visible', 'off', 'Color', 'w', 'Units', 'centimeters', ...
-  'Position', [2 2 18.4 6.7]);
+  'Position', [2 2 18.4 7.6]);
 layout = tiledlayout(fig, 1, 3, 'TileSpacing', 'compact', 'Padding', 'compact');
 
 ax = nexttile(layout, 1);
@@ -551,7 +551,6 @@ ylabel(ax, 'max relative error');
 title(ax, 'Component-wise check', 'FontWeight', 'bold');
 set(ax, 'FontName', 'Arial', 'FontSize', 7.8, 'LineWidth', 0.8, ...
   'TickDir', 'out', 'XScale', 'log', 'YScale', 'log');
-legend(ax, 'Location', 'southwest', 'Box', 'off', 'FontSize', 7.0);
 
 ax = nexttile(layout, 2);
 hold(ax, 'on');
@@ -587,6 +586,10 @@ ylabel(ax, 'Taylor remainder');
 title(ax, 'Taylor test', 'FontWeight', 'bold');
 set(ax, 'FontName', 'Arial', 'FontSize', 7.8, 'LineWidth', 0.8, ...
   'TickDir', 'out', 'XScale', 'log', 'YScale', 'log');
+
+lgd = legend(ax, 'Orientation', 'horizontal', 'Box', 'off', ...
+  'FontName', 'Arial', 'FontSize', 7.6);
+lgd.Layout.Tile = 'south';
 
 exportgraphics(fig, fullfile(figuresDir, 'sensitivity_verification_fd_strategies.png'), ...
   'Resolution', 300);

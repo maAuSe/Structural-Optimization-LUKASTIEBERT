@@ -380,13 +380,11 @@ which multiplies $\partial C/\partial \rho_{i}$ before the linear filter chain r
 
 \section{Sensitivity verification}\label{sec:sensverif}
 
-The analytical sensitivities are verified with the three finite-difference strategies recommended by Schevenels: component-wise finite differences, directional finite differences and the Taylor remainder test. All checks are run before the production code on a reduced MBB instance ($12\times 4$ analysis elements, $5\times 5$ density cells per element) with random densities perturbed about the volume fraction. The compliance and the volume are evaluated by the same routines used inside the optimization loop, so the verification exercises the derivatives that actually drive the optimizer.
-
-Three derivative chains are checked. The first verifies the classical SIMP/FE sensitivity $\partial C/\partial \rho_{e}$ with the filter bypassed. The second verifies the MTOP per-cell sensitivity $\partial C/\partial \rho_{ek}$ of \eqref{eq:mtop-K}--\eqref{eq:mtop-sens}. The third verifies the full step~4 chain: the density filter $\widetilde{\rho}=\mathcal{F}(\boldsymbol{x})$, the Heaviside projection $\rho=\mathrm{H}(\widetilde{\rho};\beta,\eta)$ with representative $\beta=8$ and $\eta=0.5$, the MTOP equilibrium analysis, and the chain rule of \cref{eq:heaviside-deriv}. Twenty randomly selected variables are checked with a central difference at $h=10^{-6}$; this gives maximum relative compliance-sensitivity errors of $5.7\times 10^{-7}$ for the classical chain, $1.1\times 10^{-5}$ for the MTOP per-cell chain and $5.4\times 10^{-6}$ for the full filter--projection--MTOP chain. The volume sensitivity is recovered to machine precision for the classical and MTOP per-cell checks.
+The analytical sensitivities are verified with three finite-difference strategies (component-wise, directional and Taylor remainder) applied to three derivative chains. The first chain verifies the classical SIMP/FE sensitivity $\partial C/\partial \rho_{e}$ with the filter bypassed. The second verifies the MTOP per-cell sensitivity $\partial C/\partial \rho_{ek}$ of \eqref{eq:mtop-K}--\eqref{eq:mtop-sens}. The third verifies the full step~4 chain: the density filter $\widetilde{\rho}=\mathcal{F}(\boldsymbol{x})$, the Heaviside projection $\rho=\mathrm{H}(\widetilde{\rho};\beta,\eta)$ with representative $\beta=8$ and $\eta=0.5$, the MTOP equilibrium analysis, and the chain rule of \cref{eq:heaviside-deriv}. All checks are run on a reduced MBB instance ($12\times 4$ analysis elements, $5\times 5$ density cells per element) with random densities perturbed about the volume fraction, using the same compliance and volume routines as the optimization loop. The volume sensitivity is recovered to machine precision for the classical and MTOP per-cell checks.
 
 \begin{table}[htbp]
   \centering
-  \caption{Component-wise finite-difference sensitivity verification for two representative variables from each derivative chain. The table uses the forward-difference formula from the verification note with $h=10^{-6}$; the full step-size sweep is shown in \cref{fig:sensitivity_fd_strategies}.}
+  \caption{Component-wise finite-difference verification for two representative design variables per chain (from a sample of six), using forward differences at $h=10^{-6}$. The full step-size sweep is shown in \cref{fig:sensitivity_fd_strategies}.}
   \label{tab:sensitivity-component}
   \begin{tabular}{llrrr}
     \toprule
@@ -405,13 +403,13 @@ Three derivative chains are checked. The first verifies the classical SIMP/FE se
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.98\textwidth]{sensitivity_verification_fd_strategies.pdf}
-  \caption{Finite-difference verification over step sizes $h=10^{-2},\ldots,10^{-12}$. The component-wise and directional checks identify the stable finite-difference range before round-off dominates. The Taylor remainder is proportional to $h^{2}$ over the same range, which is the strictest evidence that the implemented analytical sensitivities are consistent with the compliance evaluation.}
+  \caption{Finite-difference verification across step sizes $h=10^{-2},\ldots,10^{-12}$ for the three derivative chains. Each panel reports the component-wise (max over six samples), directional and Taylor remainder checks; the Taylor remainder follows the expected $\mathcal{O}(h^{2})$ slope in the intermediate range.}
   \label{fig:sensitivity_fd_strategies}
 \end{figure}
 
 \begin{table}[htbp]
   \centering
-  \caption{Comparison of the three sensitivity-verification strategies. The Taylor slope is fitted over the intermediate range $10^{-3}\ge h\ge 10^{-5}$, where neither truncation nor round-off errors dominate.}
+  \caption{Comparison of the three sensitivity-verification strategies. The component-wise and directional columns report the smallest relative error attained over the step-size sweep; the Taylor slope is fitted over the intermediate range $10^{-3}\ge h\ge 10^{-5}$, where neither truncation nor round-off errors dominate.}
   \label{tab:sensitivity-methods}
   \begin{tabular}{lccc}
     \toprule
@@ -424,7 +422,7 @@ Three derivative chains are checked. The first verifies the classical SIMP/FE se
   \end{tabular}
 \end{table}
 
-The Taylor test is used as the strongest final acceptance criterion because it verifies not only that the directional derivative tends to the finite-difference value, but also that the first-order Taylor remainder decays quadratically. The component-wise table is retained because it is the easiest way to inspect individual design variables and would localize an indexing or chain-rule error. The slightly larger component-wise errors of the MTOP per-cell check reflect the accumulation of $N_{\mathrm{c}}=25$ midpoint contributions per analysis element, but the errors are still far below any threshold that could affect the optimization trajectory. The verification routine \texttt{verify\_sensitivities.m} stores the sample values, the method-comparison tables, the plots and the test settings in \texttt{sensitivity\_verification.mat}; it is executed automatically at the start of \texttt{run\_assignment.m}.
+The Taylor remainder test is the strongest acceptance criterion because it verifies both that the directional derivative converges to the finite-difference value and that the first-order Taylor remainder decays quadratically; in all three chains the fitted slope is essentially $2.000$. The component-wise check is retained because it localizes any indexing or chain-rule error to a specific design variable. The slightly larger component-wise errors of the MTOP per-cell check reflect the accumulation of $N_{\mathrm{c}}=25$ midpoint contributions per analysis element, but remain well below any threshold that could affect the optimization trajectory.
 
 \section{Numerical experiments}
 
@@ -457,7 +455,7 @@ For each run the iteration counter, the elapsed wall-clock time, the compliance,
 
 \subsection{Classical OC baseline}
 
-The classical OC baseline of step~1 converges in $94$ iterations. The final compliance is $C_{\mathrm{cl}}=224.596$, the volume fraction is $0.50007$ and the maximum design change at convergence is $9.95\times 10^{-3}$. The wall-clock time on the reference machine is \SI{263.23}{\second}, of which $82\,\%$ is spent inside the sparse-Cholesky solve of $\mathbf{K}\mathbf{u}=\mathbf{f}$ on the $600\times 200$ analysis mesh. The optimized layout (\cref{fig:classical_oc_sensitivity_design}) shows the typical truss-like topology of the half MBB beam: a top chord in compression near the load line, a bottom chord in tension near the support line, and a system of inclined web members carrying the shear toward the support. The convergence histories as functions of the iteration number and of the wall-clock time are shown in \cref{fig:classical_oc_sensitivity_convergence_iter,fig:classical_oc_sensitivity_convergence_time}.
+The classical OC baseline of step~1 converges in $94$ iterations. The final compliance is $C_{\mathrm{cl}}=224.596$, the volume fraction is $0.500$ and the maximum design change at convergence is $9.95\times 10^{-3}$. The wall-clock time is \SI{263.23}{\second}, of which $82\,\%$ is spent inside the sparse-Cholesky solve of $\mathbf{K}\mathbf{u}=\mathbf{f}$ on the $600\times 200$ analysis mesh. The optimized layout (\cref{fig:classical_oc_sensitivity_design}) shows the typical truss-like topology of the half MBB beam: a top chord in compression near the load line, a bottom chord in tension near the support line, and a system of inclined web members carrying the shear toward the support. The convergence histories as functions of the iteration number and of the wall-clock time are shown in \cref{fig:classical_oc_sensitivity_convergence_iter,fig:classical_oc_sensitivity_convergence_time}.
 
 \begin{figure}[htbp]
   \centering
@@ -482,7 +480,7 @@ The classical OC baseline of step~1 converges in $94$ iterations. The final comp
 
 \subsection{MTOP OC with sensitivity filtering}
 
-The MTOP OC run reaches the same convergence tolerance in $95$ iterations, essentially the same iteration count as the classical baseline. The MTOP compliance evaluated on the coarse $120\times 40$ analysis mesh with the multiresolution stiffness matrix \eqref{eq:mtop-K} is $C_{\mathrm{mtop}}^{\mathrm{coarse}}=219.069$. To ensure a comparable measure of mechanical performance, the final MTOP density field is also assembled and analyzed on the same $600\times 200$ classical finite element model: this gives a fine-mesh compliance of $C_{\mathrm{mtop}}^{\mathrm{fine}}=224.696$, only \SI{0.045}{\percent} above the classical compliance $C_{\mathrm{cl}}$. The volume fraction at convergence is $0.499925$ and the wall-clock time is \SI{12.28}{\second}, which corresponds to a speedup of $21.4$ relative to the classical baseline.
+The MTOP OC run reaches the same convergence tolerance in $95$ iterations, essentially the same iteration count as the classical baseline, and preserves the truss-like load path of the classical design (\cref{fig:mtop_oc_sensitivity_design_difference}). The MTOP compliance evaluated on the coarse $120\times 40$ analysis mesh with the multiresolution stiffness matrix \eqref{eq:mtop-K} is $C_{\mathrm{mtop}}^{\mathrm{coarse}}=219.069$. To ensure a comparable measure of mechanical performance, the final MTOP density field is also assembled and analyzed on the same $600\times 200$ classical finite element model: this gives a fine-mesh compliance of $C_{\mathrm{mtop}}^{\mathrm{fine}}=224.696$, only \SI{0.045}{\percent} above the classical compliance $C_{\mathrm{cl}}$. The volume fraction at convergence is $0.500$ and the wall-clock time is \SI{12.28}{\second}, a speedup of $21.4$ relative to the classical baseline.
 
 \begin{figure}[htbp]
   \centering
@@ -514,7 +512,7 @@ The MTOP OC run reaches the same convergence tolerance in $95$ iterations, essen
 
 \subsection{Classical OC with density filtering}\label{sec:classical-density}
 
-The third experiment replaces the sensitivity filter by a density filter while keeping all other parameters of step~1 unchanged. The compliance drops to a stable plateau within roughly fifty iterations, while the maximum design change stagnates between $0.04$ and $0.07$ and the optimizer cycles between two near-equivalent layouts; this is the well-known incompatibility of the multiplicative OC update with density filtering, discussed in Section~\ref{sec:density-criterion-discussion}. The compliance-stability criterion of Section~\ref{sec:convergence} therefore terminates the run; the design-change criterion is not satisfied. The final compliance is $C_{\mathrm{cl}}^{\mathrm{dens}}\approx 241$, the volume fraction is $0.500$ and the corresponding wall-clock time is summarized in \cref{fig:runtime_summary}. The corresponding design (\cref{fig:classical_oc_density_design}) shows the same load-path topology as the sensitivity-filtered design but with notably wider grey transitions across each member boundary, which is the hallmark of density filtering: the physical density is the smoothed version of the design variable, so the boundary cannot be sharper than one filter radius.
+The third experiment replaces the sensitivity filter by a density filter while keeping all other parameters of step~1 unchanged. The compliance drops to a stable plateau within roughly fifty iterations, while the maximum design change stagnates between $0.04$ and $0.07$ and the optimizer cycles between two near-equivalent layouts; this is the well-known incompatibility of the multiplicative OC update with density filtering, discussed in Section~\ref{sec:density-criterion-discussion}. The compliance-stability criterion of Section~\ref{sec:convergence} therefore terminates the run after $237$ iterations; the design-change criterion is not satisfied. The final compliance is $C_{\mathrm{cl}}^{\mathrm{dens}}=241.083$, the volume fraction is $0.500$ and the wall-clock time is \SI{692.91}{\second}. The corresponding design (\cref{fig:classical_oc_density_design}) shows the same load-path topology as the sensitivity-filtered design but with notably wider grey transitions across each member boundary, which is the hallmark of density filtering: the physical density is a smoothed version of the design variable, so the boundary cannot be sharper than one filter radius.
 
 \begin{figure}[htbp]
   \centering
@@ -525,7 +523,7 @@ The third experiment replaces the sensitivity filter by a density filter while k
 
 \subsection{MTOP OC with density filtering}\label{sec:mtop-density}
 
-The MTOP run with density filtering shows the same oscillation pattern as the classical density-filtered run and is also stopped by the compliance-stability criterion. The native (multiresolution) compliance at termination is $C_{\mathrm{mtop}}^{\mathrm{coarse,dens}}\approx 235$ and the corresponding fine-mesh compliance is $C_{\mathrm{mtop}}^{\mathrm{fine,dens}}\approx 241$, within $0.04\,\%$ of the classical density-filtered compliance. The volume fraction at termination is $0.500$ and the wall-clock time is summarized in \cref{fig:runtime_summary}.
+The MTOP density run terminates the same way after $299$ iterations: the maximum design change does not reach $\varepsilon=0.01$, but the compliance plateau is detected. The native (multiresolution) compliance at termination is $C_{\mathrm{mtop}}^{\mathrm{coarse,dens}}=235.363$ and the corresponding fine-mesh compliance is $C_{\mathrm{mtop}}^{\mathrm{fine,dens}}=240.984$, $0.041\,\%$ below the classical density-filtered compliance. The volume fraction at termination is $0.500$ and the wall-clock time is \SI{136.57}{\second}, a speedup of $5.07$ relative to the classical density-filtered run. The compliance sensitivity fields at the final density-filtered designs (\cref{fig:density_filter_sensitivity_fields}) confirm that the classical and MTOP analyses recover the same load-carrying structure; the residual design-variable change is only a high-frequency boundary oscillation, which is why the compliance-plateau criterion provides a cleaner stop than the design-change tolerance.
 
 \begin{figure}[htbp]
   \centering
@@ -551,7 +549,7 @@ The MTOP run with density filtering shows the same oscillation pattern as the cl
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\plotfigwidth]{mtop_oc_density_convergence_time_compare.pdf}
-  \caption{Classical and MTOP OC convergence histories versus wall-clock time, for density filtering. Both runs are stopped by the compliance-stability criterion of Section~\ref{sec:convergence}, at $237$ and $299$ iterations respectively; the wall-clock speedup of MTOP over the classical run is $5.07$.}
+  \caption{Classical and MTOP OC convergence histories versus wall-clock time, for density filtering.}
   \label{fig:mtop_oc_density_convergence_time_compare}
 \end{figure}
 
@@ -566,9 +564,9 @@ The MTOP run with density filtering shows the same oscillation pattern as the cl
 
 Step~4 keeps the multiresolution analysis mesh of step~2 and the same filter radius, but replaces the OC update by MMA. The first two MMA experiments use sensitivity filtering and density filtering, which are directly comparable with the corresponding OC runs of steps~2 and~3.
 
-\textbf{MMA with sensitivity filtering.} The run satisfies the change tolerance $\varepsilon=0.01$ in $250$ iterations and gives a final compliance of $C_{\mathrm{mma,sens}}^{\mathrm{coarse}}=220.875$ on the coarse analysis mesh and $C_{\mathrm{mma,sens}}^{\mathrm{fine}}=226.502$ on the fine $600\times 200$ analysis mesh. The volume fraction at convergence is $0.500000$ and the wall-clock time is \SI{187.28}{\second}. The MTOP MMA design with sensitivity filtering is therefore very close to its OC counterpart of step~2, but reached after roughly two and a half times as many iterations and with a slightly higher fine-mesh compliance ($+0.80$\,\% vs.\ $C_{\mathrm{mtop}}^{\mathrm{fine}}=224.696$).
+With sensitivity filtering, MMA satisfies the change tolerance $\varepsilon=0.01$ in $250$ iterations and gives a final compliance of $C_{\mathrm{mma,sens}}^{\mathrm{coarse}}=220.875$ on the coarse analysis mesh and $C_{\mathrm{mma,sens}}^{\mathrm{fine}}=226.502$ on the fine $600\times 200$ analysis mesh. The volume fraction at convergence is $0.500$ and the wall-clock time is \SI{187.28}{\second}. The MTOP MMA design is therefore very close to its OC counterpart of step~2, but reached after roughly two and a half times as many iterations and with a slightly higher fine-mesh compliance ($+0.80\,\%$ vs.\ $C_{\mathrm{mtop}}^{\mathrm{fine}}=224.696$).
 
-\textbf{MMA with density filtering.} The run shows the same oscillation as the OC density-filtered runs and is again stopped by the compliance-stability criterion of Section~\ref{sec:convergence}, after $419$ iterations. The compliance is well-stabilized at $C_{\mathrm{mma,dens}}^{\mathrm{coarse}}=234.456$ on the coarse analysis mesh and $C_{\mathrm{mma,dens}}^{\mathrm{fine}}=240.077$ on the fine analysis mesh. The volume fraction at termination is $0.499999$ and the wall-clock time is \SI{253.89}{\second}. The fine-mesh compliance lies $0.4$\,\% below the OC density-filtered value from step~3, so MMA does produce a marginally better design, but the change-tolerance issue of OC density is not resolved by switching the optimizer alone.
+With density filtering, MMA reaches the same compliance plateau as the OC density-filtered runs and is again stopped by the stability criterion after $419$ iterations. The compliance is $C_{\mathrm{mma,dens}}^{\mathrm{coarse}}=234.455$ on the coarse analysis mesh and $C_{\mathrm{mma,dens}}^{\mathrm{fine}}=240.077$ on the fine analysis mesh. The volume fraction at termination is $0.500$ and the wall-clock time is \SI{253.89}{\second}. The fine-mesh compliance lies $0.42\,\%$ below the OC density-filtered value from step~3, so MMA produces a marginally better design, but the change-tolerance issue of OC density is not resolved by switching the optimizer alone.
 
 \begin{figure}[htbp]
   \centering
@@ -586,7 +584,7 @@ Step~4 keeps the multiresolution analysis mesh of step~2 and the same filter rad
 
 \subsection{MTOP MMA with Heaviside projection}\label{sec:mtop-heaviside}
 
-Heaviside projection is applied on top of density filtering with three threshold values $\eta\in\{0.3,0.5,0.7\}$. For each $\eta$, the continuation strategy described in Section~\ref{sec:mma} is used, doubling $\beta$ from $1$ to $16$ every $50$ iterations. Final compliances, iteration counts and wall-clock times are summarized in \cref{fig:runtime_summary}; the optimized designs are shown in \cref{fig:mtop_mma_heaviside_designs}.
+Heaviside projection is applied on top of density filtering with three threshold values $\eta\in\{0.3,0.5,0.7\}$. For each $\eta$, the continuation strategy described in Section~\ref{sec:mma} is used, doubling $\beta$ from $1$ to $16$ every $50$ iterations. The three runs reach fine-mesh compliances of $200.016$, $199.326$ and $200.633$ for $\eta=0.3$, $0.5$ and $0.7$ respectively, in $419$, $563$ and $522$ iterations; the optimized designs are shown in \cref{fig:mtop_mma_heaviside_designs} and all results enter the runtime summary in \cref{fig:runtime_summary}.
 
 \begin{figure}[htbp]
   \centering
@@ -616,7 +614,7 @@ Heaviside projection is applied on top of density filtering with three threshold
   \label{fig:mtop_mma_heaviside_eta_050_convergence_iter}
 \end{figure}
 
-The corresponding histories for the asymmetric thresholds $\eta=0.3$ and $\eta=0.7$ (\cref{fig:mtop_mma_heaviside_eta_030_convergence_iter,fig:mtop_mma_heaviside_eta_070_convergence_iter}) follow the same continuation pattern: each $\beta$ doubling produces a small upward step in compliance followed by a re-optimization plateau. The post-$\beta_{\max}$ tail is shorter for $\eta=0.3$ (the projection is biased towards solid, which the volume constraint already favours when $V^{*}=0.5$) and longer for $\eta=0.7$ (where the projection is biased against solid, so the optimizer has to compensate for longer before the design change drops below the tolerance).
+The corresponding histories for the asymmetric thresholds $\eta=0.3$ and $\eta=0.7$ (\cref{fig:mtop_mma_heaviside_eta_030_convergence_iter,fig:mtop_mma_heaviside_eta_070_convergence_iter}) follow the same continuation pattern: each $\beta$ doubling produces a small upward step in compliance followed by a re-optimization plateau. The post-$\beta_{\max}$ tail is shorter for $\eta=0.3$ (the projection is biased towards solid, which the volume constraint already favours when $V^{*}=0.5$) and longer for $\eta=0.7$ (the projection is biased towards void, so the optimizer has to compensate for longer before the design change drops below the tolerance).
 
 \begin{figure}[htbp]
   \centering
@@ -634,12 +632,12 @@ The corresponding histories for the asymmetric thresholds $\eta=0.3$ and $\eta=0
 
 \subsection{Runtime comparison}
 
-The runtime summary in \cref{fig:runtime_summary} is grouped by filtering or projection family: sensitivity filtering, density filtering and Heaviside projection. This grouping is important because sensitivity filtering and density filtering define different optimization problems; the density-filtered objective uses a smoothed physical density field and should not be read as a direct algorithmic improvement over sensitivity filtering. For all cross-model comparisons the fine-mesh compliance is the primary value. The native MTOP compliance is shown only to quantify the coarse-analysis objective offset.
+The runtime summary in \cref{fig:runtime_summary} groups the nine runs by filtering or projection family: sensitivity filtering, density filtering and Heaviside projection. Sensitivity- and density-filtered runs solve different optimization problems, so cost comparisons within each family are meaningful but cross-family compliance differences should not be read as algorithmic improvements. The fine-mesh compliance is the comparison value throughout; the native MTOP compliance is reported only as a coarse-analysis diagnostic. Within each family MTOP delivers a $5.07\times$ to $21.4\times$ wall-clock speedup over the classical analysis at essentially identical mechanical performance, and Heaviside projection reduces the fine-mesh compliance by roughly $17\,\%$ relative to the density-filtered MMA run at a comparable wall-clock budget.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.96\textwidth]{runtime_summary_chart.pdf}
-  \caption{Runtime and compliance summary for the nine runs, sorted by filtering or projection family. The left panel shows cost, iterations and stopping criterion; the right panel uses fine-mesh compliance as the comparison value and shows native compliance only as an auxiliary MTOP diagnostic.}
+  \caption{Runtime and compliance summary for the nine runs, sorted by filtering or projection family. The left panel shows cost, iterations and stopping criterion; the right panel reports fine-mesh compliance with the native MTOP compliance as a secondary diagnostic.}
   \label{fig:runtime_summary}
 \end{figure}
 
