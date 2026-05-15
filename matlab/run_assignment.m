@@ -1,7 +1,7 @@
-%RUN_ASSIGNMENT Entry point for the MTOP assignment workspace.
+% entry pointttt for the workspace of the MASTERCLASS made by Tiebert & Lukas
 %
-% This script sets up paths, creates output folders, prints the experiment
-% matrix encoded in src/assignment_config.m, and runs the implemented steps.
+% this script sets up paths, creates output folders, prints the experiment
+% matrix encoded in src/assignment_config.m, and runs the implemented steps like a master.
 
 clear;
 clc;
