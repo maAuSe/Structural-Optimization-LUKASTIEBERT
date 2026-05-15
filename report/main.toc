@@ -26,11 +26,9 @@
 \contentsline {section}{\numberline {8}Discussion}{21}{section.8}%
 \contentsline {subsection}{\numberline {8.1}Convergence behavior}{21}{subsection.8.1}%
 \contentsline {subsection}{\numberline {8.2}Topological similarity of the two designs}{21}{subsection.8.2}%
-\contentsline {subsection}{\numberline {8.3}Origin of the speedup}{22}{subsection.8.3}%
-\contentsline {subsection}{\numberline {8.4}Native versus fine-mesh compliance}{23}{subsection.8.4}%
-\contentsline {subsection}{\numberline {8.5}Density filtering with vanilla optimality criteria}{24}{subsection.8.5}%
-\contentsline {subsection}{\numberline {8.6}Density filtering versus sensitivity filtering as a comparison setting}{24}{subsection.8.6}%
-\contentsline {subsection}{\numberline {8.7}MMA versus optimality criteria}{25}{subsection.8.7}%
-\contentsline {subsection}{\numberline {8.8}Effect of the Heaviside threshold $\eta $}{25}{subsection.8.8}%
-\contentsline {subsection}{\numberline {8.9}Length-scale control: filter radius and density-cell count}{26}{subsection.8.9}%
-\contentsline {section}{\numberline {9}Conclusion}{27}{section.9}%
+\contentsline {subsection}{\numberline {8.3}Origin of the speedup}{21}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}Compliance evaluation and coarse-resolution comparison}{22}{subsection.8.4}%
+\contentsline {subsection}{\numberline {8.5}Density filtering and convergence behavior}{23}{subsection.8.5}%
+\contentsline {subsection}{\numberline {8.6}MMA and Heaviside projection}{24}{subsection.8.6}%
+\contentsline {section}{\numberline {9}Conclusion}{24}{section.9}%
+\contentsline {section}{Code of Conduct}{26}{section*.37}%
