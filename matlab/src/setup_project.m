@@ -1,5 +1,4 @@
 function paths = setup_project()
-%SETUP_PROJECT Add local paths and create assignment output folders.
 
 srcDir = fileparts(mfilename('fullpath'));
 matlabDir = fileparts(srcDir);
@@ -34,4 +33,3 @@ if ~isfolder(paths.results)
 end
 
 end
-

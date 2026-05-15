@@ -1,8 +1,4 @@
 function result = run_classical_oc_sensitivity(cfg)
-%RUN_CLASSICAL_OC_SENSITIVITY Classical MBB OC baseline for assignment step 1.
-%
-% This runner is adapted from the Chapter 9 lecture MBB beam code. It uses
-% optimality criteria, SIMP, and sensitivity filtering.
 
 if nargin < 1 || isempty(cfg)
   paths = setup_project();

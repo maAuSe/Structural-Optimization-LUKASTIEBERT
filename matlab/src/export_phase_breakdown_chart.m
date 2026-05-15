@@ -1,5 +1,4 @@
 function export_phase_breakdown_chart()
-%EXPORT_PHASE_BREAKDOWN_CHART Create the report figure for timing phases.
 
 repoRoot = fileparts(fileparts(mfilename('fullpath')));
 figuresDir = fullfile(repoRoot, 'figures');
@@ -73,7 +72,6 @@ for row = 1:numel(totalTime)
     'VerticalAlignment', 'middle');
 end
 
-% Label the dominant phase in each row where the segment is wide enough.
 for row = 1:size(plotTime, 1)
   cumulative = 0;
   for col = 1:size(plotTime, 2)

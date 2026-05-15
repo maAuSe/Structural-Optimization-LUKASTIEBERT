@@ -1,14 +1,4 @@
 function result = run_mtop_mma_heaviside(cfg, eta)
-%RUN_MTOP_MMA_HEAVISIDE MTOP MMA Heaviside-projection study for assignment step 4.
-%
-% This runner combines MMA with density filtering and a Heaviside
-% projection following Wang, Lazarov and Sigmund (2011), as implemented
-% in the lecture Chapter 9 example ex4.m for ft = 3. The projection
-% threshold eta and the multiresolution density mesh are used as in
-% Nguyen et al. (2010). Continuation on the projection sharpness beta
-% follows the same schedule as the lecture example: beta is doubled
-% every iterbetamax = 50 iterations, starting from beta = 1 and stopping
-% at betamax = 16.
 
 if nargin < 1 || isempty(cfg)
   paths = setup_project();
@@ -245,7 +235,6 @@ end
 
 end
 
-
 function sK = mtop_assemble_stiffness(xPhys, I_cells, ...
     densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin)
 
@@ -266,7 +255,6 @@ end
 
 end
 
-
 function ceCells = mtop_strain_energy(ueK, I_cells, ...
     densityPerX, densityPerY, feNelx, feNely)
 
@@ -284,7 +272,6 @@ for sub_x = 1:densityPerX
 end
 
 end
-
 
 function compliance = evaluate_fine_mbb_compliance(xPhys, problem)
 

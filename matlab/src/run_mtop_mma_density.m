@@ -1,11 +1,4 @@
 function result = run_mtop_mma_density(cfg)
-%RUN_MTOP_MMA_DENSITY MTOP MMA density-filter study for assignment step 4.
-%
-% This runner combines MMA with the density filter applied on the 600 x 200
-% density mesh of the multiresolution scheme. The filter chain rule and the
-% MMA call follow the lecture Chapter 9 example ex4.m for ft = 2; the
-% multiresolution stiffness assembly is the Q4/n25 scheme of Nguyen et
-% al. (2010).
 
 if nargin < 1 || isempty(cfg)
   paths = setup_project();
@@ -224,7 +217,6 @@ end
 
 end
 
-
 function sK = mtop_assemble_stiffness(xPhys, I_cells, ...
     densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin)
 
@@ -245,7 +237,6 @@ end
 
 end
 
-
 function ceCells = mtop_strain_energy(ueK, I_cells, ...
     densityPerX, densityPerY, feNelx, feNely)
 
@@ -263,7 +254,6 @@ for sub_x = 1:densityPerX
 end
 
 end
-
 
 function compliance = evaluate_fine_mbb_compliance(xPhys, problem)
 

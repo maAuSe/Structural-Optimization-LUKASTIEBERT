@@ -1,12 +1,4 @@
 function result = run_classical_oc_density(cfg)
-%RUN_CLASSICAL_OC_DENSITY Classical MBB OC baseline with density filtering for assignment step 3.
-%
-% This runner mirrors run_classical_oc_sensitivity but replaces the
-% sensitivity filter by a density filter, in which the design variables x
-% are convolved with the cone kernel H to obtain the physical densities
-% rho on which the SIMP analysis is performed. The objective and constraint
-% sensitivities with respect to the design variables follow from the chain
-% rule applied to the linear filter operator.
 
 if nargin < 1 || isempty(cfg)
   paths = setup_project();

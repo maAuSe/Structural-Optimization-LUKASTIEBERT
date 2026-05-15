@@ -1,5 +1,4 @@
 function export_simp_figure()
-%EXPORT_SIMP_FIGURE Create the report figure for SIMP material interpolation.
 
 repoRoot = fileparts(fileparts(mfilename('fullpath')));
 figuresDir = fullfile(repoRoot, 'figures');

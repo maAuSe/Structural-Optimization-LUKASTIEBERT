@@ -1,15 +1,4 @@
 function report = verify_sensitivities(cfg, options)
-%VERIFY_SENSITIVITIES Finite-difference verification of compliance and volume sensitivities.
-%
-% This routine compares the analytical sensitivities used by the assignment
-% codes with component-wise, directional and Taylor finite-difference checks.
-% The verification is performed on a small instance of the MBB problem because
-% the FD evaluation requires repeated FE solves. The same SIMP, BC and
-% integration conventions are used as in the optimization runners, so the test
-% exercises the actual derivatives that drive the optimization.
-%
-% A successful test produces a relative error below ~1e-5 for compliance
-% and below ~1e-12 for the (linear) volume sensitivity.
 
 if nargin < 1 || isempty(cfg)
   paths = setup_project();
@@ -59,7 +48,6 @@ end
 
 end
 
-
 function out = check_classical(options)
 
 rng(options.seed);
@@ -105,7 +93,6 @@ out.fd = fd_strategy_studies(@(rho) classical_objective(rho, KE, edofMat, iK, jK
   F, freedofs, penal, E0, Emin), xPhys, dcdrho, options, sampleIdx);
 
 end
-
 
 function out = check_mtop(options)
 
@@ -160,16 +147,7 @@ out.fd = fd_strategy_studies(@(rho) mtop_objective(rho, I_cells, edofMat, iK, jK
 
 end
 
-
 function out = check_heaviside_chain(options)
-%CHECK_HEAVISIDE_CHAIN Verify the full filter + Heaviside + MTOP chain rule.
-%
-% Builds a small density grid, applies the cone filter, then the Heaviside
-% projection with a representative beta and eta, then evaluates compliance
-% via the multiresolution scheme. The analytical sensitivity dC/dx is
-% compared with central finite differences applied directly to the design
-% variables x. A passing test verifies the entire chain that drives the
-% MTOP MMA Heaviside runner of step 4.
 
 rng(options.seed);
 
@@ -235,9 +213,7 @@ out.fd = fd_strategy_studies(@(x) heaviside_objective(x, h, Hs, I_cells, edofMat
 
 end
 
-
 function fd = fd_strategy_studies(evalFcn, xBase, analyticalGradient, options, preferredIdx)
-%FD_STRATEGY_STUDIES Component-wise, directional and Taylor FD checks.
 
 h = options.hStudy(:)';
 fBase = evalFcn(xBase);
@@ -324,7 +300,6 @@ fd.taylor.slope = taylorSlope;
 
 end
 
-
 function [c, dcdx] = heaviside_objective(x, h, Hs, I_cells, edofMat, iK, jK, F, freedofs, ...
     densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin, beta, eta)
 
@@ -354,7 +329,6 @@ end
 
 end
 
-
 function sK = mtop_assemble_local(xPhys, I_cells, densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin)
 
 nFe = feNelx * feNely;
@@ -373,7 +347,6 @@ end
 
 end
 
-
 function ceCells = mtop_strain_energy_local(ueK, I_cells, densityPerX, densityPerY, feNelx, feNely)
 
 ceCells = zeros(densityPerY * feNely, densityPerX * feNelx);
@@ -390,7 +363,6 @@ end
 
 end
 
-
 function [edofMat, iK, jK, F, freedofs] = mbb_topology(nelx, nely)
 
 nodenrs = reshape(1:(1 + nelx) * (1 + nely), 1 + nely, 1 + nelx);
@@ -404,7 +376,6 @@ alldofs = 1:2 * (nely + 1) * (nelx + 1);
 freedofs = setdiff(alldofs, fixeddofs);
 
 end
-
 
 function [c, dcdrho, dvdrho] = classical_objective(xPhys, KE, edofMat, iK, jK, F, freedofs, ...
     penal, E0, Emin)
@@ -425,7 +396,6 @@ if nargout > 1
 end
 
 end
-
 
 function [c, dcdrho, dvdrho] = mtop_objective(xPhys, I_cells, edofMat, iK, jK, F, freedofs, ...
     densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin)
@@ -448,7 +418,6 @@ end
 
 end
 
-
 function sK = mtop_assemble(xPhys, I_cells, densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin)
 
 nFe = feNelx * feNely;
@@ -467,7 +436,6 @@ end
 
 end
 
-
 function ceCells = strain_energy(ueK, I_cells, densityPerX, densityPerY, feNelx, feNely)
 
 ceCells = zeros(densityPerY * feNely, densityPerX * feNelx);
@@ -484,7 +452,6 @@ end
 
 end
 
-
 function KE = element_stiffness_matrix(nu)
 
 A11 = [12  3 -6 -3;  3 12  3  0; -6  3 12 -3; -3  0 -3 12];
@@ -494,7 +461,6 @@ B12 = [ 2 -3  4 -9; -3  2  9 -2;  4  9  2  3; -9 -2  3  2];
 KE = 1 / (1 - nu^2) / 24 * ([A11 A12; A12' A11] + nu * [B11 B12; B12' B11]);
 
 end
-
 
 function out = error_metrics(label, c0, idx, dcAna, dcFD, dvAna, dvFD)
 
@@ -517,7 +483,6 @@ out.dvFiniteDiff = dvFD;
 out.dvMaxAbsError = max(abs(dvAna - dvFD));
 
 end
-
 
 function export_sensitivity_verification_figures(figuresDir, report)
 
@@ -599,7 +564,6 @@ close(fig);
 
 end
 
-
 function write_sensitivity_verification_tables(resultsDir, report)
 
 if ~isfolder(resultsDir)
@@ -631,24 +595,24 @@ for k = 1:numel(checks)
   nSamples = numel(fd.component.sampleIdx);
 
   for i = 1:nSamples
-    componentCheck{end+1, 1} = labels{k}; %#ok<AGROW>
-    componentSample(end+1, 1) = fd.component.sampleIdx(i); %#ok<AGROW>
-    componentH(end+1, 1) = fd.h(hIdx); %#ok<AGROW>
-    analytical(end+1, 1) = fd.component.analytical(i); %#ok<AGROW>
-    fdForward(end+1, 1) = fd.component.forward(i, hIdx); %#ok<AGROW>
-    absError(end+1, 1) = fd.component.absErrorForward(i, hIdx); %#ok<AGROW>
-    relError(end+1, 1) = fd.component.relErrorForward(i, hIdx); %#ok<AGROW>
+    componentCheck{end+1, 1} = labels{k};
+    componentSample(end+1, 1) = fd.component.sampleIdx(i);
+    componentH(end+1, 1) = fd.h(hIdx);
+    analytical(end+1, 1) = fd.component.analytical(i);
+    fdForward(end+1, 1) = fd.component.forward(i, hIdx);
+    absError(end+1, 1) = fd.component.absErrorForward(i, hIdx);
+    relError(end+1, 1) = fd.component.relErrorForward(i, hIdx);
   end
 
   [bestComponentRel, bestComponentIdx] = min(fd.component.maxRelForward);
   [bestDirectionalRel, bestDirectionalIdx] = min(fd.directional.relError);
 
-  methodCheck{end+1, 1} = labels{k}; %#ok<AGROW>
-  componentBestH(end+1, 1) = fd.h(bestComponentIdx); %#ok<AGROW>
-  componentBestRel(end+1, 1) = bestComponentRel; %#ok<AGROW>
-  directionBestH(end+1, 1) = fd.h(bestDirectionalIdx); %#ok<AGROW>
-  directionBestRel(end+1, 1) = bestDirectionalRel; %#ok<AGROW>
-  taylorSlope(end+1, 1) = fd.taylor.slope; %#ok<AGROW>
+  methodCheck{end+1, 1} = labels{k};
+  componentBestH(end+1, 1) = fd.h(bestComponentIdx);
+  componentBestRel(end+1, 1) = bestComponentRel;
+  directionBestH(end+1, 1) = fd.h(bestDirectionalIdx);
+  directionBestRel(end+1, 1) = bestDirectionalRel;
+  taylorSlope(end+1, 1) = fd.taylor.slope;
 end
 
 componentTable = table(componentCheck, componentSample, componentH, analytical, ...
@@ -663,7 +627,6 @@ methodTable = table(methodCheck, componentBestH, componentBestRel, ...
 writetable(methodTable, fullfile(resultsDir, 'sensitivity_method_summary.csv'));
 
 end
-
 
 function print_report(report)
 

@@ -1,13 +1,4 @@
 function result = run_mtop_oc_density(cfg, classicalDensityResult)
-%RUN_MTOP_OC_DENSITY MTOP OC density-filter study for assignment step 3.
-%
-% This runner mirrors run_mtop_oc_sensitivity but replaces the sensitivity
-% filter by a density filter. The design variables x are convolved with
-% the cone kernel H on the density mesh to obtain the physical densities
-% rho. The multiresolution stiffness assembly of Nguyen et al. (2010),
-% Eq. (11), is then applied to rho. Sensitivities with respect to the
-% design variables follow from the chain rule applied to the linear filter
-% operator.
 
 if nargin < 1 || isempty(cfg)
   paths = setup_project();
@@ -258,7 +249,6 @@ end
 
 end
 
-
 function sK = mtop_assemble_stiffness(xPhys, I_cells, ...
     densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin)
 
@@ -278,7 +268,6 @@ for sub_x = 1:densityPerX
 end
 
 end
-
 
 function ceCells = mtop_strain_energy(ueK, I_cells, ...
     densityPerX, densityPerY, feNelx, feNely)

@@ -1,5 +1,4 @@
 function export_runtime_summary_chart()
-%EXPORT_RUNTIME_SUMMARY_CHART Create the report figure for all run outcomes.
 
 repoRoot = fileparts(fileparts(mfilename('fullpath')));
 figuresDir = fullfile(repoRoot, 'figures');

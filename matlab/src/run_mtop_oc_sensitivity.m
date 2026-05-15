@@ -1,13 +1,4 @@
 function result = run_mtop_oc_sensitivity(cfg, classicalResult)
-%RUN_MTOP_OC_SENSITIVITY MTOP OC sensitivity-filter study for assignment step 2.
-%
-% The density mesh has 5 x 5 density cells per finite element. The element
-% stiffness matrix is assembled following the multiresolution scheme of
-% Nguyen et al. (2010), Eq. (11): each density cell contributes a
-% precomputed template I_k (B^T D^0 B evaluated at the cell centre, scaled
-% by the cell area), weighted by its SIMP-penalised density. The compliance
-% sensitivity for a density cell is therefore the local strain-energy
-% density of that cell rather than the element-averaged value.
 
 if nargin < 1 || isempty(cfg)
   paths = setup_project();
@@ -241,13 +232,6 @@ end
 
 function sK = mtop_assemble_stiffness(xPhys, I_cells, ...
     densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin)
-%MTOP_ASSEMBLE_STIFFNESS Element stiffness entries for the Q4/nN scheme.
-%
-% Returns a (64 * feNelx * feNely) x 1 vector compatible with the standard
-% (iK, jK) sparse-assembly pattern. For each analysis element e and each
-% sub-cell k inside it,
-%
-%   K_e = sum_k (E_min + (E_0 - E_min) * rho_k^p) * I_cells(:, :, k).
 
 nFe = feNelx * feNely;
 rho4 = reshape(xPhys, densityPerY, feNely, densityPerX, feNelx);
@@ -266,14 +250,8 @@ end
 
 end
 
-
 function ceCells = mtop_strain_energy(ueK, I_cells, ...
     densityPerX, densityPerY, feNelx, feNely)
-%MTOP_STRAIN_ENERGY Per-density-cell strain-energy density u_e^T I_k u_e.
-%
-% Returns a (densityPerY * feNely) x (densityPerX * feNelx) matrix giving,
-% for every density cell, the value u_e^T I_k u_e where e is the analysis
-% element containing the cell and k is the cell's local index inside e.
 
 ceCells = zeros(densityPerY * feNely, densityPerX * feNelx);
 

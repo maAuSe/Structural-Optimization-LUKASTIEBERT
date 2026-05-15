@@ -1,5 +1,4 @@
 function export_density_sensitivity_figures(cfg)
-%EXPORT_DENSITY_SENSITIVITY_FIGURES Visualize density-filter sensitivities.
 
 if nargin < 1 || isempty(cfg)
   paths = setup_project();
@@ -60,7 +59,6 @@ close(fig);
 
 end
 
-
 function [rawMagnitude, filteredMagnitude] = classical_density_sensitivities(result)
 
 xPhys = result.xPhys;
@@ -78,7 +76,6 @@ rawMagnitude = -dcdrho;
 filteredMagnitude = -dcdx;
 
 end
-
 
 function [rawMagnitude, filteredMagnitude] = mtop_density_sensitivities(result)
 
@@ -102,7 +99,6 @@ filteredMagnitude = -dcdx;
 
 end
 
-
 function [edofMat, iK, jK, F, freedofs] = mbb_topology(nelx, nely)
 
 nodenrs = reshape(1:(1 + nelx) * (1 + nely), 1 + nely, 1 + nelx);
@@ -116,7 +112,6 @@ alldofs = 1:2 * (nely + 1) * (nelx + 1);
 freedofs = setdiff(alldofs, fixeddofs);
 
 end
-
 
 function ceCells = mtop_strain_energy(ueK, I_cells, densityPerX, densityPerY, feNelx, feNely)
 
@@ -134,7 +129,6 @@ end
 
 end
 
-
 function KE = element_stiffness_matrix(nu)
 
 A11 = [12  3 -6 -3;  3 12  3  0; -6  3 12 -3; -3  0 -3 12];
@@ -144,7 +138,6 @@ B12 = [ 2 -3  4 -9; -3  2  9 -2;  4  9  2  3; -9 -2  3  2];
 KE = 1 / (1 - nu^2) / 24 * ([A11 A12; A12' A11] + nu * [B11 B12; B12' B11]);
 
 end
-
 
 function value = percentile_value(values, percent)
 

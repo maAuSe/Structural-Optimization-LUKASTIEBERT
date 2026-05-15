@@ -1,5 +1,4 @@
 function result = run_classical_oc_coarse_sensitivity(cfg)
-%RUN_CLASSICAL_OC_COARSE_SENSITIVITY Coarse analysis-density baseline.
 
 if nargin < 1 || isempty(cfg)
   paths = setup_project();
@@ -54,7 +53,6 @@ fprintf('Saved coarse-coarse figures in:\n');
 fprintf('  %s\n\n', cfg.paths.figures);
 
 end
-
 
 function result = solve_classical_mbb_oc(problem)
 
@@ -184,7 +182,6 @@ result.timeBreakdown.total = result.elapsedSeconds;
 
 end
 
-
 function xFine = upscale_density(xCoarse, problem)
 
 scaleX = problem.fineNelx / problem.nelx;
@@ -196,7 +193,6 @@ end
 xFine = kron(xCoarse, ones(round(scaleY), round(scaleX)));
 
 end
-
 
 function compliance = evaluate_fine_mbb_compliance(xPhys, problem)
 
@@ -218,7 +214,6 @@ compliance = sum(sum((problem.Emin + xPhys.^problem.penal * ...
 
 end
 
-
 function [edofMat, iK, jK, F, freedofs] = mbb_topology(nelx, nely)
 
 nodenrs = reshape(1:(1 + nelx) * (1 + nely), 1 + nely, 1 + nelx);
@@ -233,7 +228,6 @@ freedofs = setdiff(alldofs, fixeddofs);
 
 end
 
-
 function KE = element_stiffness_matrix(nu)
 
 A11 = [12  3 -6 -3;  3 12  3  0; -6  3 12 -3; -3  0 -3 12];
@@ -243,7 +237,6 @@ B12 = [ 2 -3  4 -9; -3  2  9 -2;  4  9  2  3; -9 -2  3  2];
 KE = 1 / (1 - nu^2) / 24 * ([A11 A12; A12' A11] + nu * [B11 B12; B12' B11]);
 
 end
-
 
 function write_history_csv(historyPath, history)
 
@@ -256,7 +249,6 @@ T = table(history.iteration, history.timeSeconds, history.compliance, ...
 writetable(T, historyPath);
 
 end
-
 
 function write_summary(summaryPath, result)
 
@@ -285,7 +277,6 @@ fprintf(fid, 'Cumulative filter time [s]: %.6f\n', result.timeBreakdown.filter);
 fprintf(fid, 'Cumulative optimizer time [s]: %.6f\n', result.timeBreakdown.optimizer);
 
 end
-
 
 function export_coarse_figures(figuresDir, result)
 
@@ -322,7 +313,6 @@ export_figure(fig, figuresDir, 'classical_oc_coarse_sensitivity_convergence_iter
 close(fig);
 
 end
-
 
 function export_figure(fig, figuresDir, baseName)
 

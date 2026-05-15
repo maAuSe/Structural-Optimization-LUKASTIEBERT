@@ -1,5 +1,4 @@
 function cfg = assignment_config(paths)
-%ASSIGNMENT_CONFIG Central parameters and planned experiment matrix.
 
 if nargin < 1 || isempty(paths)
   paths = setup_project();
@@ -78,4 +77,3 @@ experiment.densityNely = densityNely;
 experiment.filterRadius = filterRadius;
 experiment.eta = eta;
 end
-

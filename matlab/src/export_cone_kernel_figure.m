@@ -1,5 +1,4 @@
 function export_cone_kernel_figure()
-%EXPORT_CONE_KERNEL_FIGURE Create the report figure for the cone filter.
 
 repoRoot = fileparts(fileparts(mfilename('fullpath')));
 figuresDir = fullfile(repoRoot, 'figures');

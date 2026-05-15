@@ -1,12 +1,4 @@
 function result = run_mtop_mma_sensitivity(cfg)
-%RUN_MTOP_MMA_SENSITIVITY MTOP MMA sensitivity-filter study for assignment step 4.
-%
-% This runner replaces the optimality-criteria update of step 2 by the
-% method of moving asymptotes (Svanberg 1987). Filtering, SIMP penalization
-% and the multiresolution stiffness assembly of Nguyen et al. (2010) are
-% identical to run_mtop_oc_sensitivity. The MMA call follows the lecture
-% Chapter 9 example ex4.m, with the objective scaled by 1/100 and the
-% volume constraint expressed as v/volfrac - 1 <= 0.
 
 if nargin < 1 || isempty(cfg)
   paths = setup_project();
@@ -207,7 +199,6 @@ end
 
 end
 
-
 function sK = mtop_assemble_stiffness(xPhys, I_cells, ...
     densityPerX, densityPerY, feNelx, feNely, penal, E0, Emin)
 
@@ -228,7 +219,6 @@ end
 
 end
 
-
 function ceCells = mtop_strain_energy(ueK, I_cells, ...
     densityPerX, densityPerY, feNelx, feNely)
 
@@ -246,7 +236,6 @@ for sub_x = 1:densityPerX
 end
 
 end
-
 
 function compliance = evaluate_fine_mbb_compliance(xPhys, problem)
 
