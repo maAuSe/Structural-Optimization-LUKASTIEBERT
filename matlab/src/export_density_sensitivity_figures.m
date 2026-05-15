@@ -9,43 +9,48 @@ end
 classicalData = load(fullfile(cfg.paths.results, 'classical_oc_density.mat'), 'result');
 mtopData = load(fullfile(cfg.paths.results, 'mtop_oc_density.mat'), 'result');
 
-classicalResult = classicalData.result;
-mtopResult = mtopData.result;
+[classicalRaw, classicalFiltered] = classical_density_sensitivities(classicalData.result);
+[mtopRaw, mtopFiltered] = mtop_density_sensitivities(mtopData.result);
 
-[classicalRaw, classicalFiltered] = classical_density_sensitivities(classicalResult);
-[mtopRaw, mtopFiltered] = mtop_density_sensitivities(mtopResult);
-
-fields = {
-  classicalRaw, 'Classical raw sensitivity'
-  classicalFiltered, 'Classical after density-filter chain rule'
-  mtopRaw, 'MTOP raw per-cell sensitivity'
-  mtopFiltered, 'MTOP after density-filter chain rule'
+panels = {
+  classicalRaw,      classicalData.result.xPhys, 'Classical raw sensitivity'
+  mtopRaw,           mtopData.result.xPhys,      'MTOP raw sensitivity'
+  classicalFiltered, classicalData.result.xPhys, 'Classical after density-filter chain rule'
+  mtopFiltered,      mtopData.result.xPhys,      'MTOP after density-filter chain rule'
 };
 
-allValues = [];
-for k = 1:size(fields, 1)
-  values = fields{k, 1};
-  allValues = [allValues; log10(max(values(:), realmin))]; %#ok<AGROW>
+for k = 1:size(panels, 1)
+  field = max(panels{k, 1}, 0);
+  scale = percentile_value(field(:), 99);
+  if ~(scale > 0)
+    scale = max(field(:));
+  end
+  panels{k, 1} = min(field / max(scale, eps), 1);
 end
-clim = [percentile_value(allValues, 2), percentile_value(allValues, 98)];
 
 fig = figure('Visible', 'off', 'Color', 'w', 'Units', 'centimeters', ...
-  'Position', [2 2 18.4 8.9]);
-layout = tiledlayout(fig, 2, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
+  'Position', [2 2 18.4 6.4]);
+layout = tiledlayout(fig, 2, 2, 'TileSpacing', 'compact', 'Padding', 'tight');
 
-for k = 1:size(fields, 1)
+for k = 1:size(panels, 1)
   ax = nexttile(layout, k);
-  imagesc(ax, log10(max(fields{k, 1}, realmin)));
+  imagesc(ax, panels{k, 1});
+  hold(ax, 'on');
+  contour(ax, panels{k, 2}, [0.5 0.5], '-', 'LineWidth', 0.5, ...
+    'Color', [0.85 0.1 0.1]);
+  hold(ax, 'off');
   axis(ax, 'equal', 'tight', 'off');
-  colormap(ax, turbo(256));
-  caxis(ax, clim);
-  title(ax, fields{k, 2}, 'FontName', 'Arial', 'FontSize', 8.4, ...
+  colormap(ax, parula(256));
+  caxis(ax, [0 1]);
+  title(ax, panels{k, 3}, 'FontName', 'Arial', 'FontSize', 8.0, ...
     'FontWeight', 'bold');
-  cb = colorbar(ax);
-  cb.Label.String = 'log10(-dC/dx)';
-  cb.FontName = 'Arial';
-  cb.FontSize = 7.2;
 end
+
+cb = colorbar;
+cb.Layout.Tile = 'east';
+cb.FontName = 'Arial';
+cb.FontSize = 7.2;
+cb.Label.String = 'normalized sensitivity (clipped at 99th percentile)';
 
 exportgraphics(fig, fullfile(cfg.paths.figures, 'density_filter_sensitivity_fields.png'), ...
   'Resolution', 300);

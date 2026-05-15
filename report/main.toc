@@ -20,9 +20,9 @@
 \contentsline {subsection}{\numberline {7.2}MTOP OC with sensitivity filtering}{13}{subsection.7.2}%
 \contentsline {subsection}{\numberline {7.3}Classical OC with density filtering}{15}{subsection.7.3}%
 \contentsline {subsection}{\numberline {7.4}MTOP OC with density filtering}{15}{subsection.7.4}%
-\contentsline {subsection}{\numberline {7.5}MTOP MMA: sensitivity and density filtering}{16}{subsection.7.5}%
+\contentsline {subsection}{\numberline {7.5}MTOP MMA: sensitivity and density filtering}{17}{subsection.7.5}%
 \contentsline {subsection}{\numberline {7.6}MTOP MMA with Heaviside projection}{18}{subsection.7.6}%
-\contentsline {subsection}{\numberline {7.7}Runtime comparison}{19}{subsection.7.7}%
+\contentsline {subsection}{\numberline {7.7}Runtime comparison}{18}{subsection.7.7}%
 \contentsline {section}{\numberline {8}Discussion}{21}{section.8}%
 \contentsline {subsection}{\numberline {8.1}Convergence behavior}{21}{subsection.8.1}%
 \contentsline {subsection}{\numberline {8.2}Topological similarity of the two designs}{21}{subsection.8.2}%
