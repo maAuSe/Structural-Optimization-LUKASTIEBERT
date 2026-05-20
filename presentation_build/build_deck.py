@@ -78,11 +78,11 @@ def set_title(slide, text, size=32):
             r.font.size = Pt(size)
 
 
-def bullets(placeholder, items, l0=19, l1=16):
+def bullets(placeholder, items, l0=19, l1=16, anchor=MSO_ANCHOR.MIDDLE):
     """items: list of (text, level, bold)."""
     tf = placeholder.text_frame
     tf.word_wrap = True
-    tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+    tf.vertical_anchor = anchor
     for i, it in enumerate(items):
         text = it[0]
         lvl = it[1] if len(it) > 1 else 0
@@ -185,13 +185,16 @@ if pp is not None:
     drop(pp)
     pic_fit(s, os.path.join(FIG, "mtop_oc_sensitivity_design.png"), *box)
 notes(s, (
-    "PRESENTER: Lukas   |   Target ~20 s\n\n"
+    "PRESENTER: Lukas   |   Target ~25 s\n\n"
+    "[Pacing: the whole talk targets about 12 minutes, roughly 6 minutes "
+    "per presenter. Speak at a measured pace and do not rush the figures; "
+    "the per-slide targets below sum to about 12 minutes.]\n\n"
     "Greeting. Our examination assignment is on multiresolution topology "
     "optimization, MTOP. In topology optimization the question is where to "
-    "put material to make a structure as stiff as possible; here the question "
-    "is whether we can answer that question faster. We assessed MTOP on the "
-    "half MBB beam and compared it head-to-head with the classical approach. "
-    "The image is our optimized beam."))
+    "put material to make a structure as stiff as possible; here the "
+    "question is whether we can answer that question faster. We assessed "
+    "MTOP on the half MBB beam and compared it head-to-head with the "
+    "classical approach. The image is our optimized beam."))
 
 # ====================================================================
 # SLIDE 2 - problem statement
@@ -216,7 +219,9 @@ notes(s, (
     "PRESENTER: Lukas   |   Target ~50 s\n\n"
     "Topology optimization distributes a fixed amount of material so the "
     "structure is as stiff as possible. The cost is dominated by repeatedly "
-    "solving the finite element system K u = f.\n"
+    "solving the finite element system K u = f: every optimization "
+    "iteration needs a fresh solve, and a run takes on the order of a "
+    "hundred iterations, so that solve cost is paid over and over.\n"
     "MTOP, introduced by Nguyen and co-workers in 2010, splits the problem: "
     "the design is still described on a fine mesh, but the equilibrium "
     "equations are solved on a coarse mesh, which should be much cheaper.\n"
@@ -243,15 +248,16 @@ drop(ph(s, 13))
 pic_fit(s, os.path.join(RFIG, "geometry.png"), RIGHT_X, CONTENT_T, RIGHT_W, CONTENT_H)
 finalize(s, 3)
 notes(s, (
-    "PRESENTER: Lukas   |   Target ~40 s\n\n"
-    "Our test structure is the half MBB beam from the Chapter 9 lecture code. "
-    "A unit point load at the top-left corner, a symmetry condition on the "
-    "left edge, and a roller at the bottom-right. Plane stress, bilinear quad "
-    "elements.\n"
+    "PRESENTER: Lukas   |   Target ~45 s\n\n"
+    "Our test structure is the half MBB beam from the Chapter 9 lecture "
+    "code. A unit point load at the top-left corner, a symmetry condition "
+    "on the left edge, and a roller at the bottom-right. Plane stress, "
+    "bilinear quad elements.\n"
     "The optimization targets a volume fraction of one half, SIMP "
     "penalization three, and a cone filter of radius 24 density cells. "
     "Important: these settings are identical for every experiment, so any "
-    "difference we see is due to MTOP, not the parameters."))
+    "difference we see is genuinely due to MTOP, not to a change of "
+    "parameters. That is what makes the comparison a fair one."))
 
 # ====================================================================
 # SLIDE 4 - MTOP concept
@@ -273,18 +279,22 @@ pic_fit(s, os.path.join(GEN, "gen_concept_meshes.png"),
         RIGHT_X - 250000, CONTENT_T, RIGHT_W + 250000, CONTENT_H)
 finalize(s, 4)
 notes(s, (
-    "PRESENTER: Lukas   |   Target ~70 s\n\n"
+    "PRESENTER: Lukas   |   Target ~75 s\n\n"
     "This is the heart of MTOP. In the classical approach the analysis mesh "
     "and the design mesh are the same, 600 by 200.\n"
     "In MTOP we keep the 600 by 200 design resolution, but we analyze on a "
     "coarse 120 by 40 mesh, with 5 by 5 density cells inside each finite "
-    "element - that is the zoom on the right.\n"
-    "Each element's stiffness is integrated with one midpoint sample per "
-    "density cell, so 25 small stiffness templates, which are precomputed "
-    "once per run.\n"
-    "The payoff is the number of equations: the free degrees of freedom drop "
-    "from about 241,000 to about 9,900. That factor is the speedup we are "
-    "chasing."))
+    "element - that is the zoom on the right. Each element's stiffness is "
+    "integrated with one midpoint sample per density cell, so 25 small "
+    "stiffness templates, which are precomputed once per run.\n"
+    "One point worth stressing: the displacement field is still only "
+    "piecewise-bilinear on the coarse mesh. The fine density mesh refines "
+    "how we describe the material, not how we resolve the displacements - "
+    "that is the approximation MTOP makes, and it is exactly why we always "
+    "re-check the final design on the fine mesh.\n"
+    "The payoff is the number of equations: the free degrees of freedom "
+    "drop from about 241,000 to about 9,900. That factor is the speedup we "
+    "are chasing."))
 
 # ====================================================================
 # SLIDE 5 - optimization problem + experiment matrix
@@ -341,16 +351,20 @@ for ri, row in enumerate(rows):
         run.font.color.rgb = WHITE if ri == 0 else SLATE
 finalize(s, 5)
 notes(s, (
-    "PRESENTER: Lukas   |   Target ~50 s\n\n"
+    "PRESENTER: Lukas   |   Target ~55 s\n\n"
     "Quickly, the optimization problem. The design variables are the cell "
     "densities, the objective is to minimize compliance, and the constraint "
-    "is the volume fraction of one half. SIMP with penalization three, and a "
-    "cone filter of radius 24, used either as a sensitivity filter or a "
+    "is the volume fraction of one half. SIMP with penalization three, and "
+    "a cone filter of radius 24, used either as a sensitivity filter or a "
     "density filter.\n"
-    "We ran the seven experiments in the table: the optimality-criteria runs "
-    "for assignment steps 1 to 3, then MMA for step 4 with sensitivity "
-    "filtering, density filtering, and Heaviside projection at three "
-    "thresholds. Every MTOP run has a classical counterpart for comparison."))
+    "On the optimizer: OC is a simple, fast update tailored to this kind of "
+    "problem; MMA is a general-purpose gradient optimizer. We need MMA in "
+    "step 4 because the Heaviside projection makes the problem too "
+    "non-linear for the OC heuristic.\n"
+    "We ran the seven experiments in the table: optimality criteria for "
+    "steps 1 to 3, then MMA for step 4 with sensitivity filtering, density "
+    "filtering, and Heaviside projection at three thresholds. Every MTOP "
+    "run has a classical counterpart for comparison."))
 
 # ====================================================================
 # SLIDE 6 - sensitivity verification (figure on top, bullets below)
@@ -370,7 +384,7 @@ bullets(tx, [
 ], l0=17)
 finalize(s, 6)
 notes(s, (
-    "PRESENTER: Lukas   |   Target ~40 s\n\n"
+    "PRESENTER: Lukas   |   Target ~45 s\n\n"
     "Before trusting any result we verified the sensitivities - the "
     "gradients the optimizer relies on. We checked three derivative chains: "
     "the classical SIMP gradient, the MTOP per-cell gradient, and the full "
@@ -378,7 +392,9 @@ notes(s, (
     "The strongest is the Taylor remainder test, the right-hand panel: it "
     "should decay quadratically with the step size, and the fitted slope is "
     "essentially 2.00 for all three chains, with errors down to ten to the "
-    "minus six. So the analytical gradients are correct."))
+    "minus six. The component-wise check also pins any indexing or "
+    "chain-rule error to a single variable, which is how we caught bugs "
+    "during development. So the analytical gradients are correct."))
 
 # ====================================================================
 # SLIDE 7 - OC + sensitivity filter: designs match
@@ -399,16 +415,18 @@ pic_fit(s, os.path.join(FIG, "mtop_oc_sensitivity_design_difference.png"),
         RIGHT_X, CONTENT_T, RIGHT_W, CONTENT_H)
 finalize(s, 7)
 notes(s, (
-    "PRESENTER: Lukas   |   Target ~45 s\n\n"
+    "PRESENTER: Lukas   |   Target ~50 s\n\n"
     "Now the results. Steps 1 and 2: optimality criteria with sensitivity "
     "filtering. On the right, the classical design on top, the MTOP design "
     "in the middle, and their difference at the bottom.\n"
-    "The two layouts are the same truss - a top chord, a bottom chord, a "
-    "triangulated web. The difference plot is almost empty, just small "
-    "boundary shifts, an RMS of three thousandths. Re-evaluated on the same "
-    "fine mesh the compliances differ by 0.045 percent.\n"
-    "So MTOP does not change the design. I will hand over to Tiebert for how "
-    "much faster it is."))
+    "The two layouts are the same truss. Physically: a top chord in "
+    "compression near the load, a bottom chord in tension near the "
+    "support, and a triangulated web carrying the shear toward the "
+    "support. The difference plot is almost empty, just small boundary "
+    "shifts, an RMS of three thousandths. Re-evaluated on the same fine "
+    "mesh the compliances differ by 0.045 percent.\n"
+    "So MTOP does not change the design. I will hand over to Tiebert for "
+    "how much faster it is."))
 
 # ====================================================================
 # SLIDE 8 - OC + sensitivity filter: 21x faster
@@ -429,15 +447,17 @@ pic_fit(s, os.path.join(FIG, "mtop_oc_sensitivity_convergence_time_compare.png")
         RIGHT_X, CONTENT_T, RIGHT_W, CONTENT_H)
 finalize(s, 8)
 notes(s, (
-    "PRESENTER: Tiebert   (takes over from Lukas)   |   Target ~40 s\n\n"
-    "Thanks. So the designs are identical, but the timing is not. This plot "
-    "is compliance against wall-clock time - classical in blue, MTOP in "
-    "orange.\n"
-    "Both runs take essentially the same number of iterations, 94 and 95, so "
-    "the optimization path is unchanged. But the classical run takes 263 "
-    "seconds and the MTOP run takes 12 - a factor of 21. You can see the "
-    "orange curve squeezed against the time axis.\n"
-    "Same design, same iteration count, 21 times faster."))
+    "PRESENTER: Tiebert   (takes over from Lukas)   |   Target ~45 s\n\n"
+    "Thanks. So the designs are identical, but the timing is not. This "
+    "plot is compliance against wall-clock time - classical in blue, MTOP "
+    "in orange.\n"
+    "It is worth stressing the iteration counts, 94 and 95: MTOP is not "
+    "converging differently or cutting corners, it follows the same "
+    "optimization path. But the classical run takes 263 seconds and the "
+    "MTOP run takes 12 - a factor of 21. You can see the orange curve "
+    "squeezed against the time axis.\n"
+    "Same design, same iteration count, each iteration simply cheaper: 21 "
+    "times faster overall."))
 
 # ====================================================================
 # SLIDE 9 - OC + density filter
@@ -462,13 +482,16 @@ notes(s, (
     "Step 3 repeats the comparison with a density filter instead of a "
     "sensitivity filter. The designs are again almost identical, 0.04 "
     "percent in compliance.\n"
-    "But the speedup drops from 21 to about 5. The reason: the density "
-    "filter adds a chain-rule convolution and a volume check that still run "
-    "on the full 600 by 200 density mesh, so they do not shrink with the "
-    "analysis mesh.\n"
-    "One more observation: with a density filter the OC update never quite "
-    "meets the design-change tolerance - it oscillates at the boundary - so "
-    "we stop it on a compliance plateau instead."))
+    "But the speedup drops from 21 to about 5. The density filter adds a "
+    "chain-rule convolution and a volume check that still run on the full "
+    "600 by 200 density mesh, so they do not shrink with the analysis "
+    "mesh.\n"
+    "There is also a convergence subtlety. With a density filter the OC "
+    "update never quite meets the design-change tolerance. The reason: OC "
+    "rescales each variable on its own, while the filter spreads every "
+    "change over a neighbourhood, so the two fight at the member "
+    "boundaries. The compliance settles, but the design keeps oscillating, "
+    "so we stop on a compliance plateau instead."))
 
 # ====================================================================
 # SLIDE 10 - MMA + Heaviside
@@ -501,14 +524,18 @@ notes(s, (
     "Step 4 swaps the optimality-criteria update for MMA, the method of "
     "moving asymptotes. MMA on its own gives a design close to the OC "
     "result, and it does not by itself fix the density-filter convergence "
-    "issue from the previous slide.\n"
-    "The real benefit comes with Heaviside projection, which pushes the gray "
-    "material towards either solid or void. On the right are the three "
-    "projected designs, for thresholds 0.3, 0.5 and 0.7: all near "
-    "black-and-white, all the same load path.\n"
-    "The projected compliance is about 17 percent below the gray "
-    "density-filtered design. The three thresholds differ by less than 0.7 "
-    "percent; 0.5 is marginally the best."))
+    "issue.\n"
+    "The real benefit comes with Heaviside projection, which pushes the "
+    "gray material towards either solid or void. One implementation "
+    "detail: we ramp the projection sharpness, beta, gradually - doubling "
+    "it every fifty iterations from one up to sixteen - so the optimizer "
+    "is never hit with a sharp threshold all at once. That continuation is "
+    "what keeps the projected runs stable.\n"
+    "On the right are the three projected designs, for thresholds 0.3, 0.5 "
+    "and 0.7: all near black-and-white, all the same load path. The "
+    "projected compliance is about 17 percent below the gray "
+    "density-filtered design, and the three thresholds differ by less than "
+    "0.7 percent, with 0.5 marginally the best."))
 
 # ====================================================================
 # SLIDE 11 - where the speedup comes from (figure left, text right)
@@ -533,17 +560,18 @@ bullets(tx, [
 drop(ph(s, 13))
 finalize(s, 11)
 notes(s, (
-    "PRESENTER: Tiebert   |   Target ~50 s\n\n"
+    "PRESENTER: Tiebert   |   Target ~55 s\n\n"
     "So where does the speedup actually come from? This chart breaks each "
     "run into algorithmic phases.\n"
     "For the classical OC run, the green block - the finite element solve - "
-    "is 82 percent of the time. MTOP shrinks exactly that block: the coarse "
-    "solve is about 40 times faster.\n"
-    "What it cannot shrink is the rest - the filtering, the assembly, the "
-    "optimizer - which still act on the fine density mesh. That is why the "
-    "total speedup is 21 and not 40. For the MMA runs the red optimizer "
-    "block dominates, so there the equilibrium solve is no longer the "
-    "bottleneck."))
+    "is 82 percent of the time. MTOP shrinks exactly that block. To put "
+    "numbers on it: the FE solve alone drops from about 215 seconds to "
+    "about 5, a 40-fold gain, but the total only goes from 263 to 12, a "
+    "21-fold gain.\n"
+    "The difference is the rest of the work - filtering, assembly, the "
+    "optimizer update - which still acts on the full density mesh and does "
+    "not shrink. For the MMA runs the red optimizer block dominates, so "
+    "there the equilibrium solve is no longer the bottleneck at all."))
 
 # ====================================================================
 # SLIDE 12 - what MTOP really buys you
@@ -573,10 +601,13 @@ notes(s, (
     "for both the analysis and the design. Re-analyzed on the fine mesh, it "
     "lands within 0.6 percent of the full design.\n"
     "So for this 2D beam, with a fairly large filter, even a crude model "
-    "already finds the load path. The difference is that this coarse design "
-    "is locked to 120-by-40 resolution and is noticeably grayer.\n"
+    "already finds the load path. But the comparison is not entirely fair "
+    "to that coarse model: it is also grayer, with more intermediate "
+    "material, so part of its apparently low compliance is just material "
+    "that SIMP has not fully penalized.\n"
     "MTOP's real value is that it keeps the full 600-by-200 design "
-    "description while only paying for the coarse solve."))
+    "description, and a genuinely black-and-white one, while only paying "
+    "for the coarse solve."))
 
 # ====================================================================
 # SLIDE 13 - conclusions
@@ -598,17 +629,18 @@ pic_fit(s, os.path.join(FIG, "runtime_summary_chart.png"),
         RIGHT_X, CONTENT_T, RIGHT_W, CONTENT_H)
 finalize(s, 13)
 notes(s, (
-    "PRESENTER: Tiebert   |   Target ~40 s\n\n"
+    "PRESENTER: Tiebert   |   Target ~50 s\n\n"
     "To conclude. MTOP reproduces the classical MBB design to within 0.05 "
     "percent compliance. It is 21 times faster with sensitivity filtering "
     "and 5 times faster with density filtering.\n"
     "The speedup comes from the cheaper coarse equilibrium solve, and is "
     "capped by the operations that still run on the fine mesh. OC with "
-    "density filtering converges only in the compliance sense. And Heaviside "
-    "projection gives the lowest, near-binary compliance, best at threshold "
-    "0.5.\n"
-    "The chart summarizes all nine runs - cost on the left, compliance on "
-    "the right."))
+    "density filtering converges only in the compliance sense. And "
+    "Heaviside projection gives the lowest, near-binary compliance, best at "
+    "threshold 0.5. The chart on the right summarizes all nine runs - cost "
+    "on the left, compliance on the right.\n"
+    "If we had to compress it to one sentence: MTOP buys the speed of a "
+    "coarse analysis without giving up the resolution of a fine design."))
 
 # ====================================================================
 # SLIDE 14 - use of GenAI
@@ -623,7 +655,7 @@ bullets(tx, [
     ("Language editing of text we wrote ourselves", 1),
     ("Post-processing and plotting scripts", 1),
     ("One supporting theory figure (the MMA sketch)", 1),
-], l0=21, l1=18)
+], l0=22, l1=19, anchor=MSO_ANCHOR.TOP)
 rx = ph(s, 13)
 rx.left, rx.top, rx.width, rx.height = MARGIN + col_w + COLGAP, CONTENT_T, col_w, CONTENT_H
 bullets(rx, [
@@ -631,10 +663,10 @@ bullets(rx, [
     ("MTOP method and MATLAB solver implemented by us", 1),
     ("All sensitivities verified with finite differences", 1),
     ("Every result reproduced and understood ourselves", 1),
-], l0=21, l1=18)
+], l0=22, l1=19, anchor=MSO_ANCHOR.TOP)
 finalize(s, 14)
 notes(s, (
-    "PRESENTER: Tiebert   |   Target ~20 s\n\n"
+    "PRESENTER: Tiebert   |   Target ~25 s\n\n"
     "A brief word on GenAI. We used ChatGPT as a support tool: to "
     "language-edit text we had written ourselves, for post-processing and "
     "plotting scripts, and for one supporting theory figure, the MMA "
@@ -661,7 +693,7 @@ bullets(tx, [
      "cannot resolve", 1),
     ("Cases that need the fine design description, not only the overall "
      "load path", 1),
-], l0=20, l1=17)
+], l0=20, l1=17, anchor=MSO_ANCHOR.TOP)
 rx = ph(s, 13)
 rx.left, rx.top, rx.width, rx.height = MARGIN + col_w + COLGAP, CONTENT_T, col_w, col_h
 bullets(rx, [
@@ -672,20 +704,22 @@ bullets(rx, [
      "mesh and cap the speedup", 1),
     ("With MMA the optimizer subproblem, not the FE solve, is the "
      "bottleneck", 1),
-], l0=20, l1=17)
+], l0=20, l1=17, anchor=MSO_ANCHOR.TOP)
 textbox(s, MARGIN, CONTENT_T + col_h + 200000, SW - 2 * MARGIN, 680000,
         ["Thank you for your attention. Questions?"],
         size=26, bold=True, color=TEAL, align=PP_ALIGN.CENTER,
         anchor=MSO_ANCHOR.MIDDLE)
 finalize(s, 15)
 notes(s, (
-    "PRESENTER: Tiebert   |   Target ~30 s\n\n"
+    "PRESENTER: Tiebert   |   Target ~40 s\n\n"
     "To close, a brief outlook. Our headline numbers are for a 2D beam, "
     "where a plain coarse model already came within 0.6 percent, so the 2D "
     "benefit was modest. MTOP pays off most where the equilibrium solve "
     "genuinely dominates the cost: in 3D, with much larger systems, and "
     "where the design has fine features a coarse model cannot resolve, so "
-    "keeping the fine density description is worth it.\n"
+    "keeping the fine density description is worth it. In 3D in particular "
+    "the speedup we measured here would only grow, since the solve is an "
+    "even larger share of the cost.\n"
     "Three open issues from this study: density filtering needs a better "
     "convergence criterion than the design-change tolerance; the filtering, "
     "assembly and optimizer steps still scale with the fine mesh and cap the "
