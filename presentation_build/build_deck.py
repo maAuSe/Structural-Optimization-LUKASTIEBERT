@@ -130,6 +130,52 @@ def textbox(slide, x, y, w, h, lines, size=13, color=SLATE, bold=False,
     return tb
 
 
+def eqbox(slide, x, y, w, h, items):
+    """Borderless equation/text block, no bullets. items: (text, size, bold)."""
+    tf = slide.shapes.add_textbox(int(x), int(y), int(w), int(h)).text_frame
+    tf.word_wrap = True
+    tf.vertical_anchor = MSO_ANCHOR.TOP
+    tf.margin_left = tf.margin_right = 36000
+    for i, (text, size, bold) in enumerate(items):
+        p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+        p.space_after = Pt(4)
+        if bold and i > 0:
+            p.space_before = Pt(12)
+        r = p.add_run()
+        r.text = text
+        r.font.size = Pt(size)
+        r.font.bold = bold
+        r.font.color.rgb = TEAL if bold else SLATE
+
+
+def make_table(slide, rows, x, y, w, h, col_w, fsize=11, hsize=12):
+    """Teal-header table; first column left-aligned, others centered."""
+    gf = slide.shapes.add_table(len(rows), len(rows[0]), int(x), int(y),
+                                int(w), int(h))
+    t = gf.table
+    t.first_row = False
+    t.horz_banding = False
+    for ci, cw in enumerate(col_w):
+        t.columns[ci].width = int(cw)
+    for ri, row in enumerate(rows):
+        t.rows[ri].height = int(h / len(rows))
+        for ci, val in enumerate(row):
+            cell = t.cell(ri, ci)
+            cell.vertical_anchor = MSO_ANCHOR.MIDDLE
+            cell.margin_left = 82000
+            cell.margin_right = 55000
+            cell.margin_top = cell.margin_bottom = 14000
+            cell.fill.solid()
+            cell.fill.fore_color.rgb = TEAL if ri == 0 else WHITE
+            para = cell.text_frame.paragraphs[0]
+            para.alignment = PP_ALIGN.LEFT if ci == 0 else PP_ALIGN.CENTER
+            run = para.add_run()
+            run.text = str(val)
+            run.font.size = Pt(hsize if ri == 0 else fsize)
+            run.font.bold = (ri == 0)
+            run.font.color.rgb = WHITE if ri == 0 else SLATE
+
+
 def notes(slide, text):
     slide.notes_slide.notes_text_frame.text = text
 
@@ -726,6 +772,187 @@ notes(s, (
     "speedup below the 40 times of the solve itself; and with MMA the "
     "optimizer subproblem, not the FE solve, becomes the bottleneck.\n"
     "Thank you - we are happy to take questions."))
+
+# ====================================================================
+# SLIDE 16 - appendix divider
+# ====================================================================
+s = add("SectiekopSlot")
+s.shapes.title.text = "Appendix"
+textbox(s, MARGIN, 4050000, SW - 2 * MARGIN, 520000,
+        ["Backup slides for the discussion"],
+        size=20, color=WHITE, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+
+# ====================================================================
+# SLIDE 17 - appendix: problem formulation and SIMP
+# ====================================================================
+s = add(TWO)
+set_title(s, "Appendix: problem formulation and SIMP")
+drop(ph(s, 1))
+drop(ph(s, 13))
+eqbox(s, LEFT_X, CONTENT_T, 5500000, CONTENT_H, [
+    ("Minimum-compliance problem", 18, True),
+    ("minimize   C(x) = f^T u(ρ)", 15, False),
+    ("subject to   K(ρ) u = f", 15, False),
+    ("and   mean density ≤ V* = 0.5", 15, False),
+    ("design variable x in [0,1] per density cell", 13, False),
+    ("SIMP material law", 18, True),
+    ("E(ρ) = E_min + ρ^p (E0 - E_min),   p = 3", 15, False),
+    ("at ρ = 0.5 this gives E / E0 = 0.125", 13, False),
+    ("Cone filter, radius r = 24 density cells", 18, True),
+    ("density filter:  ρ_i = Σ H_ij x_j  /  Σ H_ij", 15, False),
+    ("sensitivity filter: smooths ∂C/∂x_i (a heuristic)", 14, False),
+])
+pic_fit(s, os.path.join(FIG, "simp_interpolation.png"),
+        6300000, CONTENT_T, 5316000, CONTENT_H)
+finalize(s, 17)
+notes(s, "Backup slide. Use for questions on the optimization formulation, "
+          "SIMP penalization, or the two filters.")
+
+# ====================================================================
+# SLIDE 18 - appendix: MTOP element and sensitivities
+# ====================================================================
+s = add(TWO)
+set_title(s, "Appendix: MTOP element and sensitivities")
+drop(ph(s, 1))
+drop(ph(s, 13))
+eqbox(s, LEFT_X, CONTENT_T, 5650000, CONTENT_H, [
+    ("Element stiffness, midpoint quadrature", 17, True),
+    ("K_e = Σ_k [ E_min + ρ_ek^p (E0 - E_min) ] I_k", 14, False),
+    ("I_k = A_k · B^T(ξ_k) D0 B(ξ_k),   A_k = 1/25", 14, False),
+    ("the 25 templates I_k depend on geometry only", 13, False),
+    ("and are precomputed once per run", 13, False),
+    ("Compliance sensitivity (self-adjoint)", 17, True),
+    ("∂C/∂ρ = - u^T (∂K/∂ρ) u   (no extra solve)", 14, False),
+    ("classical:  ∂C/∂ρ_e = -p (E0-E_min) ρ_e^(p-1) u_e^T K0 u_e", 12, False),
+    ("MTOP cell:  ∂C/∂ρ_ek = -p (E0-E_min) ρ_ek^(p-1) u_e^T I_k u_e", 12, False),
+])
+pic_fit(s, os.path.join(GEN, "gen_concept_meshes.png"),
+        6376000, CONTENT_T, 5240000, CONTENT_H)
+finalize(s, 18)
+notes(s, "Backup slide. Use for questions on the MTOP element, the 25 sub-cell "
+          "templates, midpoint quadrature, and the per-cell sensitivity.")
+
+# ====================================================================
+# SLIDE 19 - appendix: sensitivity verification
+# ====================================================================
+s = add("Alleen titel")
+set_title(s, "Appendix: sensitivity verification")
+vw = 9800000
+vx = (SW - vw) // 2
+make_table(s, [
+    ("Derivative chain", "Best component-wise error",
+     "Best directional error", "Taylor slope"),
+    ("Classical SIMP", "6.9e-6", "3.4e-6", "2.000"),
+    ("MTOP per-cell", "2.1e-5", "1.9e-4", "2.000"),
+    ("Full Heaviside chain", "2.0e-6", "7.9e-6", "1.999"),
+], vx, 2350000, vw, 1640000,
+   [3000000, 2700000, 2500000, 1600000], fsize=13, hsize=12.5)
+textbox(s, vx, 4250000, vw, 900000, [
+    "Three finite-difference strategies on three derivative chains.",
+    "The Taylor-remainder slope of about 2 confirms the analytical gradients.",
+], size=14, color=SLATE, align=PP_ALIGN.CENTER)
+finalize(s, 19)
+notes(s, "Backup slide. Use for questions on how the sensitivities were "
+          "verified and how accurate they are.")
+
+# ====================================================================
+# SLIDE 20 - appendix: all nine experiments
+# ====================================================================
+s = add("Alleen titel")
+set_title(s, "Appendix: all nine experiments")
+make_table(s, [
+    ("Run", "C (fine mesh)", "Iterations", "Time (s)", "Stopping criterion"),
+    ("Classical OC, sensitivity filter", "224.6", "94", "263", "design change"),
+    ("MTOP OC, sensitivity filter", "224.7", "95", "12", "design change"),
+    ("Classical OC, density filter", "241.1", "237", "693", "compliance plateau"),
+    ("MTOP OC, density filter", "241.0", "299", "137", "compliance plateau"),
+    ("MTOP MMA, sensitivity filter", "226.5", "250", "187", "design change"),
+    ("MTOP MMA, density filter", "240.1", "419", "254", "compliance plateau"),
+    ("MTOP MMA, Heaviside η = 0.3", "200.0", "419", "279", "design change"),
+    ("MTOP MMA, Heaviside η = 0.5", "199.3", "563", "371", "design change"),
+    ("MTOP MMA, Heaviside η = 0.7", "200.6", "522", "328", "design change"),
+], MARGIN, 1640000, SW - 2 * MARGIN, 4050000,
+   [3700000, 1900000, 1750000, 1550000, 2140000], fsize=12, hsize=12)
+finalize(s, 20)
+notes(s, "Backup slide. The full results table for any question on a specific "
+          "run, its compliance, cost, or stopping criterion.")
+
+# ====================================================================
+# SLIDE 21 - appendix: native vs fine-mesh compliance
+# ====================================================================
+s = add(TWO)
+set_title(s, "Appendix: native vs fine-mesh compliance")
+drop(ph(s, 1))
+drop(ph(s, 13))
+make_table(s, [
+    ("Model", "Analysis", "Density", "Native C", "Fine-mesh C"),
+    ("Classical fine", "600 × 200", "600 × 200", "224.60", "224.60"),
+    ("MTOP", "120 × 40", "600 × 200", "219.07", "224.70"),
+    ("Classical coarse-resolution", "120 × 40", "120 × 40", "219.11", "226.04"),
+], MARGIN, 1660000, SW - 2 * MARGIN, 1640000,
+   [3300000, 1850000, 1850000, 1820000, 2220000], fsize=12.5, hsize=12.5)
+eqbox(s, MARGIN, 3640000, SW - 2 * MARGIN, 2200000, [
+    ("Why two compliance values?", 17, True),
+    ("Native C uses each run's own analysis model. A coarser displacement "
+     "mesh is stiffer, so MTOP's native C is lower.", 14, False),
+    ("Fine-mesh C re-analyzes every design on the common 600 × 200 model: "
+     "this is the value used for all comparisons.", 14, False),
+    ("The coarse-resolution baseline reaches 226.04 but is locked to "
+     "120 × 40 and is grayer; MTOP keeps the full design.", 14, False),
+])
+finalize(s, 21)
+notes(s, "Backup slide. Use for questions on why native and fine-mesh "
+          "compliance differ, and on the coarse-resolution baseline.")
+
+# ====================================================================
+# SLIDE 22 - appendix: OC and MMA updates
+# ====================================================================
+s = add(TWO)
+set_title(s, "Appendix: the OC and MMA updates")
+drop(ph(s, 1))
+drop(ph(s, 13))
+eqbox(s, LEFT_X, CONTENT_T, 5500000, CONTENT_H, [
+    ("Optimality criteria (OC)", 17, True),
+    ("x_i  ←  x_i · ( B_i / λ )^(1/2)", 15, False),
+    ("then clip to move limit m = 0.2 and to [0,1]", 13, False),
+    ("B_i = - (∂C/∂x_i) / (∂V/∂x_i)", 14, False),
+    ("optimality criterion: B_i = λ at all interior cells", 13, False),
+    ("λ from bisection so the volume constraint is active", 13, False),
+    ("MMA, method of moving asymptotes", 17, True),
+    ("a separable convex subproblem each iteration", 13, False),
+    ("asymptotes L_k, U_k act as an adaptive trust region", 13, False),
+    ("general-purpose: handles the Heaviside projection", 13, False),
+])
+pic_fit(s, os.path.join(RFIG, "mma_asymptotes.png"),
+        6300000, CONTENT_T, 5316000, CONTENT_H)
+finalize(s, 22)
+notes(s, "Backup slide. Use for questions on the OC update rule, the "
+          "Lagrange-multiplier bisection, or how MMA works.")
+
+# ====================================================================
+# SLIDE 23 - appendix: Heaviside projection
+# ====================================================================
+s = add(TWO)
+set_title(s, "Appendix: Heaviside projection")
+drop(ph(s, 1))
+drop(ph(s, 13))
+eqbox(s, LEFT_X, CONTENT_T, 5300000, CONTENT_H, [
+    ("Smooth Heaviside projection", 17, True),
+    ("projects the filtered density d toward 0 or 1:", 13, False),
+    ("ρ = [ tanh(βη) + tanh(β(d - η)) ]", 14, False),
+    ("        /  [ tanh(βη) + tanh(β(1 - η)) ]", 14, False),
+    ("η : threshold       β : projection sharpness", 13, False),
+    ("Continuation in β", 17, True),
+    ("β doubled from 1 to 16, every 50 iterations", 14, False),
+    ("solve the smooth problem first, then sharpen", 13, False),
+    ("this avoids poor local minima at high β", 13, False),
+])
+pic_fit(s, os.path.join(FIG, "mtop_mma_heaviside_eta_050_convergence_iter.png"),
+        6050000, CONTENT_T, 5566000, CONTENT_H)
+finalize(s, 23)
+notes(s, "Backup slide. Use for questions on the Heaviside projection, the "
+          "threshold eta, and the beta-continuation strategy. The figure shows "
+          "compliance, volume and beta versus iteration for eta = 0.5.")
 
 prs.save(OUT)
 print("saved", OUT, "with", len(prs.slides._sldIdLst), "slides")
