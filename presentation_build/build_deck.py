@@ -611,45 +611,86 @@ notes(s, (
     "the right."))
 
 # ====================================================================
-# SLIDE 14 - GenAI use and validation
+# SLIDE 14 - use of GenAI
 # ====================================================================
 s = add(TWO)
-set_title(s, "Use of GenAI and validation")
+set_title(s, "Use of GenAI")
+col_w = (SW - 2 * MARGIN - COLGAP) // 2
+tx = ph(s, 1)
+tx.left, tx.top, tx.width, tx.height = MARGIN, CONTENT_T, col_w, CONTENT_H
+bullets(tx, [
+    ("We used ChatGPT for", 0, True),
+    ("Language editing of text we wrote ourselves", 1),
+    ("Post-processing and plotting scripts", 1),
+    ("One supporting theory figure (the MMA sketch)", 1),
+], l0=21, l1=18)
+rx = ph(s, 13)
+rx.left, rx.top, rx.width, rx.height = MARGIN + col_w + COLGAP, CONTENT_T, col_w, CONTENT_H
+bullets(rx, [
+    ("We kept the work in our control", 0, True),
+    ("MTOP method and MATLAB solver implemented by us", 1),
+    ("All sensitivities verified with finite differences", 1),
+    ("Every result reproduced and understood ourselves", 1),
+], l0=21, l1=18)
+finalize(s, 14)
+notes(s, (
+    "PRESENTER: Tiebert   |   Target ~20 s\n\n"
+    "A brief word on GenAI. We used ChatGPT as a support tool: to "
+    "language-edit text we had written ourselves, for post-processing and "
+    "plotting scripts, and for one supporting theory figure, the MMA "
+    "sketch.\n"
+    "We did not use it for the method or the results. The MTOP "
+    "implementation is ours, every sensitivity was verified independently "
+    "with finite differences, and every number in this talk we reproduced "
+    "and understand. The full transparency table is in the report."))
+
+# ====================================================================
+# SLIDE 15 - future work and outlook
+# ====================================================================
+s = add(TWO)
+set_title(s, "Future work and outlook")
 col_w = (SW - 2 * MARGIN - COLGAP) // 2
 col_h = 3500000
 tx = ph(s, 1)
 tx.left, tx.top, tx.width, tx.height = MARGIN, CONTENT_T, col_w, col_h
 bullets(tx, [
-    ("We used GenAI for:", 0, True),
-    ("Proofreading and rephrasing text we wrote ourselves", 1),
-    ("Post-processing and plotting scripts", 1),
-    ("Supporting theory figures (e.g. the MMA sketch)", 1),
-    ("Background reading, checked against course material", 1),
+    ("Where MTOP pays off most", 0, True),
+    ("3D problems: the equilibrium solve dominates far more, so the "
+     "speedup is larger", 1),
+    ("Smaller filter radii and finer features, which a plain coarse model "
+     "cannot resolve", 1),
+    ("Cases that need the fine design description, not only the overall "
+     "load path", 1),
 ], l0=20, l1=17)
 rx = ph(s, 13)
 rx.left, rx.top, rx.width, rx.height = MARGIN + col_w + COLGAP, CONTENT_T, col_w, col_h
 bullets(rx, [
-    ("We stayed in control by:", 0, True),
-    ("Implementing every result ourselves in MATLAB", 1),
-    ("Verifying all sensitivities with finite differences", 1),
-    ("Cross-checking MTOP designs by fine-mesh re-analysis", 1),
-    ("Reproducing and understanding every number", 1),
+    ("Open issues and limitations", 0, True),
+    ("Density filtering needs a convergence criterion beyond the "
+     "design-change tolerance", 1),
+    ("Filtering, assembly and the optimizer still scale with the fine "
+     "mesh and cap the speedup", 1),
+    ("With MMA the optimizer subproblem, not the FE solve, is the "
+     "bottleneck", 1),
 ], l0=20, l1=17)
 textbox(s, MARGIN, CONTENT_T + col_h + 200000, SW - 2 * MARGIN, 680000,
         ["Thank you for your attention. Questions?"],
         size=26, bold=True, color=TEAL, align=PP_ALIGN.CENTER,
         anchor=MSO_ANCHOR.MIDDLE)
-finalize(s, 14)
+finalize(s, 15)
 notes(s, (
-    "PRESENTER: Tiebert   |   Target ~25 s\n\n"
-    "Finally, transparency on GenAI. We used it as a language aid to "
-    "proofread our own text, for post-processing and plotting scripts, for a "
-    "couple of supporting theory figures, and for initial background "
-    "reading.\n"
-    "Everything that matters we did ourselves: the MATLAB implementation, "
-    "the finite-difference verification of every sensitivity, and the "
-    "fine-mesh re-analysis that cross-checks the MTOP designs. Every number "
-    "in this talk we reproduced and understand.\n"
+    "PRESENTER: Tiebert   |   Target ~30 s\n\n"
+    "To close, a brief outlook. Our headline numbers are for a 2D beam, "
+    "where a plain coarse model already came within 0.6 percent, so the 2D "
+    "benefit was modest. MTOP pays off most where the equilibrium solve "
+    "genuinely dominates the cost: in 3D, with much larger systems, and "
+    "where the design has fine features a coarse model cannot resolve, so "
+    "keeping the fine density description is worth it.\n"
+    "Three open issues from this study: density filtering needs a better "
+    "convergence criterion than the design-change tolerance; the filtering, "
+    "assembly and optimizer steps still scale with the fine mesh and cap the "
+    "speedup below the 40 times of the solve itself; and with MMA the "
+    "optimizer subproblem, not the FE solve, becomes the bottleneck.\n"
     "Thank you - we are happy to take questions."))
 
 prs.save(OUT)
